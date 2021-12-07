@@ -2,8 +2,6 @@ package days.aoc2015
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
-import org.hamcrest.core.IsInstanceOf.instanceOf
-import org.hamcrest.core.IsNull.notNullValue
 import org.junit.Test
 
 class Day6Test {
@@ -12,11 +10,11 @@ class Day6Test {
 
     @Test
     fun testPartOne() {
-        assertThat(day.partOne(), `is`(99996))
+        assertThat(day.partOne(), `is`(998996))
     }
 
     @Test
     fun testPartTwo() {
-        assertThat(day.partTwo(), `is`(false))
+        assertThat(day.partTwo(), `is`(1001996L))
     }
 }
