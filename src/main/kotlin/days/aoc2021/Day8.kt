@@ -58,18 +58,5 @@ class Day8 : Day(2021, 8) {
 
             }
         }
-
-        /*
-        return inputLines.sumBy { line ->
-            var multiplier = 1000
-            line.substringAfter('|').trim().split("\\s".toRegex()).map { s ->
-                val string = s.toCharArray().sorted().joinToString("")
-                val value = signalToValueMap.indexOf(string) * multiplier
-                multiplier /= 10
-                value
-            }.sum()
-        }
-         */
-        return 0
     }
 }
