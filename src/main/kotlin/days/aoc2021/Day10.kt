@@ -1,8 +1,6 @@
 package days.aoc2021
 
 import days.Day
-import java.lang.Math.round
-import kotlin.math.roundToInt
 
 class Day10 : Day(2021, 10) {
     override fun partOne(): Any {
@@ -38,7 +36,7 @@ class Day10 : Day(2021, 10) {
                 stack.addFirst(c)
             } else {
                 if (stack.isEmpty() || delimiterMap[stack.first()] != c) {
-                    throw InvalidSyntaxException(c)
+                    throw InvalidSyntaxException()
                 } else {
                     stack.removeFirst()
                 }
@@ -81,5 +79,5 @@ class Day10 : Day(2021, 10) {
         return 0
     }
 
-    class InvalidSyntaxException(val delimiter: Char?) : Exception()
+    class InvalidSyntaxException : Exception()
 }
