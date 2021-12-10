@@ -52,12 +52,10 @@ class Day5 : Day(2021, 5) {
         }
 
         input.mapNotNull { line ->
-            println("Processing $line")
             Regex("(\\d+),(\\d+) -> (\\d+),(\\d+)").matchEntire(line.trim())?.destructured?.let { (x1, y1, x2, y2) ->
                 Pair(Pair(x1.toInt(), y1.toInt()), Pair(x2.toInt(), y2.toInt()))
             }
         }.forEach {
-            println("Time for $it")
             if (it.first.first == it.second.first || it.first.second == it.second.second) {
                 for (x in min(it.first.first,it.second.first).rangeTo(max(it.first.first,it.second.first))) {
                     for (y in min(it.first.second,it.second.second).rangeTo(max(it.first.second,it.second.second))) {
