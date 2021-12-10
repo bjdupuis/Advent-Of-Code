@@ -63,45 +63,22 @@ class Day10 : Day(2021, 10) {
 
     private fun calculateSyntaxError(line: String): Int {
         val delimiterSyntaxScoreMap = mapOf(')' to 3, ']' to 57, '}' to 1197, '>' to 25137)
+        val delimiterMap = mapOf('<' to '>', '(' to ')', '[' to ']', '{' to '}')
 
-        var processing: String? = line
-        while (processing != null) {
-            try {
-                processing = parseChunk(processing.first(), processing.drop(1))
-            } catch (invalidSyntaxException: InvalidSyntaxException) {
-                if (invalidSyntaxException.delimiter != null) {
-                    return delimiterSyntaxScoreMap[invalidSyntaxException.delimiter]!!
+        val stack = ArrayDeque<Char>()
+        line.forEach { c ->
+            if (c in delimiterMap.keys) {
+                stack.addFirst(c)
+            } else {
+                if (stack.isEmpty() || delimiterMap[stack.first()] != c) {
+                    return delimiterSyntaxScoreMap[c]!!
+                } else {
+                    stack.removeFirst()
                 }
             }
         }
 
         return 0
-    }
-
-    private fun parseChunk(delimiter: Char, remainder: String): String? {
-        val delimiterMap = mapOf('<' to '>', '(' to ')', '[' to ']', '{' to '}')
-        var rest: String? = remainder
-        do {
-            val current = rest?.firstOrNull()
-            rest = rest?.drop(1)
-            when {
-                current == null -> {
-                    return null
-                }
-                current in delimiterMap.keys -> {
-                    rest = parseChunk(current!!, rest!!)
-                }
-                current != delimiterMap[delimiter] -> {
-                    throw InvalidSyntaxException(current)
-                }
-                else -> {
-                    return rest
-                }
-            }
-
-        } while (rest?.isNotBlank() == true)
-
-        return null
     }
 
     class InvalidSyntaxException(val delimiter: Char?) : Exception()
