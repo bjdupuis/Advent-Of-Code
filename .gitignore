@@ -8,3 +8,4 @@ out/
 build/
 local.properties
 src/main/kotlin/.DS_Store
+.DS_Store
