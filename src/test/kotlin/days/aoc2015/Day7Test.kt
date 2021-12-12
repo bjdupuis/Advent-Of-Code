@@ -21,9 +21,4 @@ class Day7Test {
         assertThat(day.circuit.getGate("x").calculateOutput(), `is`(123u))
         assertThat(day.circuit.getGate("y").calculateOutput(), `is`(456u))
     }
-
-    @Test
-    fun testPartTwo() {
-        assertThat(day.partTwo(), `is`(false))
-    }
 }
