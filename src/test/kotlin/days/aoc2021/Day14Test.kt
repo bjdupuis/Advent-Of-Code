@@ -29,6 +29,11 @@ CN -> C
 
     @Test
     fun testPartOne() {
-        MatcherAssert.assertThat(day.findDeltaBetweenMostAndLeastCommonElements2(input, 10), `is`(1588))
+        MatcherAssert.assertThat(day.findDeltaBetweenMostAndLeastCommonElements2(input, 10), `is`(1588L))
+    }
+
+    @Test
+    fun testPartTwo() {
+        MatcherAssert.assertThat(day.findDeltaBetweenMostAndLeastCommonElements2(input, 40), `is`(2188189693529L))
     }
 }

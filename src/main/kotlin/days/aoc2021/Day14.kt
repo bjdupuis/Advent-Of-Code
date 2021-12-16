@@ -8,7 +8,7 @@ class Day14 : Day(2021, 14) {
     }
 
     override fun partTwo(): Any {
-        return 0
+        return findDeltaBetweenMostAndLeastCommonElements2(inputList, 40)
     }
 
     // idiot version
@@ -65,7 +65,7 @@ class Day14 : Day(2021, 14) {
             // increment the pairs for the substitutions, first letter of pair with sub and sub with last letter of pair.
             // we're replacing a pair with two "new" pairs, so we're double counting a bit.
             pairCounts.forEach { (pair, count) ->
-                letterCounts[substitutionMap[pair]!!.first()] = letterCounts.getOrDefault(substitutionMap[pair], 0L) + count
+                letterCounts[substitutionMap[pair]!!.first()] = letterCounts.getOrDefault(substitutionMap[pair]!!.first(), 0L) + count
                 ("" + pair[0] + substitutionMap[pair]).let { key ->
                     newlyCreatePairCounts[key] = newlyCreatePairCounts.getOrDefault(key, 0L) + count
                 }
