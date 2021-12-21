@@ -19,7 +19,6 @@ class Day20 : Day(2021, 20) {
         val algorithm = inputLines.first()
         val imageData = inputLines.drop(2)
 
-        // make it larger than it needs to be to account for the empty ring around it
         val data = Array(imageData.first().length) {
             Array(imageData.size) {'.'}
         }
@@ -74,16 +73,6 @@ class Day20 : Day(2021, 20) {
             return binary?.reversed()?.foldIndexed(0) { index, total, digit ->
                 total + 1.shl(index) * (digit - '0')
             } ?: throw IllegalArgumentException()
-        }
-
-        private fun dump() {
-            for (y in data.indices) {
-                for (x in data[y].indices) {
-                    print(data[y][x])
-                }
-                println()
-            }
-            println()
         }
 
     }
