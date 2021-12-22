@@ -16,7 +16,7 @@ class Day10: Day(2020, 10) {
     override fun partTwo(): Any {
         val list = inputList.map { it.toInt() }.plus(0).sorted()
 
-        return findAdaptersTo(list.plus(list.max()!! + 3), list.max()!! + 3)
+        return findAdaptersTo(list.plus(list.maxOfOrNull { it }!! + 3), list.maxOfOrNull { it }!! + 3)
     }
 
     private val cache = mutableMapOf<Int, Long>()
