@@ -41,7 +41,7 @@ class Day22: Day(2020, 22) {
             }
 
             if ((drawn[0].second > players[0].deckSize()) || (drawn[1].second > players[1].deckSize())) {
-                players.first { player -> player.id == (drawn.maxBy { it.second }!!.first)}.acceptWonHand(drawn.sortedByDescending { it.second }.map { it.second })
+                players.first { player -> player.id == (drawn.maxByOrNull { it.second }!!.first)}.acceptWonHand(drawn.sortedByDescending { it.second }.map { it.second })
             } else {
                 val winner = playGame(listOf(
                         Player(players[0].id, mutableListOf<Int>().apply { addAll(players[0].deck.subList(0,drawn[0].second)) }),

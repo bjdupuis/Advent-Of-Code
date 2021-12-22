@@ -4,15 +4,13 @@ import days.Day
 
 class Day20 : Day(2021, 20) {
     override fun partOne(): Any {
-        val pair = parseInput(inputList)
-        val image = pair.second.enhance(pair.first, 2)
-        return countLightPixels(image)
+        val (algorithm, image) = parseInput(inputList)
+        return countLightPixels(image.enhance(algorithm, 2))
     }
 
     override fun partTwo(): Any {
-        val pair = parseInput(inputList)
-        val image = pair.second.enhance(pair.first, 50)
-        return countLightPixels(image)
+        val (algorithm, image) = parseInput(inputList)
+        return countLightPixels(image.enhance(algorithm, 50))
     }
 
     fun parseInput(inputLines: List<String>): Pair<String,Image> {
