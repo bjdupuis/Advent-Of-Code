@@ -12,8 +12,7 @@ import kotlin.math.absoluteValue
 
 class Day19 : Day(2021, 19) {
     override fun partOne(): Any {
-        //return countDistinctBeacons(orientScanners(inputList))
-        return 0
+        return countDistinctBeacons(orientScanners(inputList))
     }
 
     override fun partTwo(): Any {
@@ -58,23 +57,26 @@ class Day19 : Day(2021, 19) {
         scanners[0].offset = mk.ndarray(mk[0,0,0])
 
         do {
+            // loop through the scanners whose orientation and offset we know
             scanners.filter { it.naturalRotation != null }.forEach { scanner1 ->
+                // ... and loop through those we have yet to figure out
                 scanners.filter { it.naturalRotation == null }.forEach { scanner2 ->
                     run rotations@{
+                        // now see if we can find an orientation that matches
                         rotations().forEach { rotation ->
                             val rotatedBeacons = scanner2.rotatedBy(rotation)
-                            val scanner1Beacons = scanner1.rotatedAndOffset() ?: scanner1.beaconsDetected
+                            val scanner1Beacons = scanner1.rotatedAndOffset()!!
                             scanner1Beacons.forEach { beaconFromScanner1 ->
                                 rotatedBeacons.forEach { rotatedBeacon ->
                                     // assume these are the same beacon. Calculate the delta between
-                                    // them and then apply that delta to all of scanner2's beacons
+                                    // them and then apply that delta to all of scanner2's beacons.
+                                    // Then check for enough matches... if we have matches, we found
+                                    // the same beacon in each scanner's relative coordinate system
                                     val delta = rotatedBeacon - beaconFromScanner1
                                     val offsetBeacons = rotatedBeacons.map { rotated ->
                                         rotated - delta
                                     }
-                                    val matchingBeacons =
-                                        offsetBeacons.filter { scanner1Beacons.contains(it) }
-                                    if (matchingBeacons.size >= 12) {
+                                    if (offsetBeacons.count { scanner1Beacons.contains(it) } >= 12) {
                                         scanner2.naturalRotation = rotation
                                         scanner2.offset = delta
                                         return@rotations
@@ -85,6 +87,8 @@ class Day19 : Day(2021, 19) {
                     }
                 }
             }
+
+            // keep going until all of the scanners are oriented
         } while (scanners.count { it.naturalRotation == null } != 0)
 
         return scanners
