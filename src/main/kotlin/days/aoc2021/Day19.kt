@@ -3,22 +3,39 @@ package days.aoc2021
 import days.Day
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
-import org.jetbrains.kotlinx.multik.ndarray.data.D1Array
-import org.jetbrains.kotlinx.multik.ndarray.data.D2Array
-import org.jetbrains.kotlinx.multik.ndarray.data.get
+import org.jetbrains.kotlinx.multik.ndarray.data.*
+import org.jetbrains.kotlinx.multik.ndarray.operations.map
 import org.jetbrains.kotlinx.multik.ndarray.operations.minus
+import org.jetbrains.kotlinx.multik.ndarray.operations.sum
+import kotlin.math.absoluteValue
 
 
 class Day19 : Day(2021, 19) {
     override fun partOne(): Any {
+        //return countDistinctBeacons(orientScanners(inputList))
         return 0
     }
 
     override fun partTwo(): Any {
-        return 0
+        return calculateMaximumDistanceBetweenScanners(orientScanners(inputList))
     }
 
-    fun countBeacons(inputLines: List<String>): Int {
+    fun calculateMaximumDistanceBetweenScanners(scanners: List<Scanner>): Int {
+        var max = 0
+        for (i in 0 until scanners.lastIndex) {
+            for (j in i+1..scanners.lastIndex) {
+                max = maxOf(max, (scanners[i].offset!! - scanners[j].offset!!).map { it.absoluteValue }.sum())
+            }
+        }
+
+        return max
+    }
+
+    fun countDistinctBeacons(scanners: List<Scanner>): Int {
+        return scanners.flatMap { it.rotatedAndOffset()!! }.distinct().count()
+    }
+
+    fun orientScanners(inputLines: List<String>): List<Scanner> {
         var scanners = mutableListOf<Scanner>()
         inputLines.filter { !it.startsWith("---") }
             .fold(mutableListOf<D1Array<Int>>()) { list, line  ->
@@ -37,43 +54,53 @@ class Day19 : Day(2021, 19) {
                 }
             }
 
-        val beacons = mutableListOf<D1Array<Int>>()
-        for (i in 0 until scanners.lastIndex) {
-            for (j in i+1..scanners.lastIndex) {
-                val scanner1 = scanners[i]
-                val scanner2 = scanners[j]
+        scanners[0].naturalRotation = rotationList[0]
+        scanners[0].offset = mk.ndarray(mk[0,0,0])
 
-                rotations().forEach { rotation ->
-                    val matchingBeacons = scanner2.rotatedBy(rotation).filter { scanner1.vectors.contains(it) }
-                    if (matchingBeacons.size >= 12) {
-                        println("Found matching rotation ($rotation) for $i and $j")
-                        beacons.addAll(matchingBeacons)
+        do {
+            scanners.filter { it.naturalRotation != null }.forEach { scanner1 ->
+                scanners.filter { it.naturalRotation == null }.forEach { scanner2 ->
+                    run rotations@{
+                        rotations().forEach { rotation ->
+                            val rotatedBeacons = scanner2.rotatedBy(rotation)
+                            val scanner1Beacons = scanner1.rotatedAndOffset() ?: scanner1.beaconsDetected
+                            scanner1Beacons.forEach { beaconFromScanner1 ->
+                                rotatedBeacons.forEach { rotatedBeacon ->
+                                    // assume these are the same beacon. Calculate the delta between
+                                    // them and then apply that delta to all of scanner2's beacons
+                                    val delta = rotatedBeacon - beaconFromScanner1
+                                    val offsetBeacons = rotatedBeacons.map { rotated ->
+                                        rotated - delta
+                                    }
+                                    val matchingBeacons =
+                                        offsetBeacons.filter { scanner1Beacons.contains(it) }
+                                    if (matchingBeacons.size >= 12) {
+                                        scanner2.naturalRotation = rotation
+                                        scanner2.offset = delta
+                                        return@rotations
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
+        } while (scanners.count { it.naturalRotation == null } != 0)
 
-
-        return beacons.size
+        return scanners
     }
 
-    class Scanner(beaconsDetected: List<D1Array<Int>>) {
+    class Scanner(val beaconsDetected: List<D1Array<Int>>) {
+        var naturalRotation: D2Array<Int>? = null
+        var offset: NDArray<Int,D1>? = null
 
-        val vectors = mutableListOf<D1Array<Int>>()
-        init {
-            for (i in 0 until beaconsDetected.lastIndex) {
-                for (j in i+1..beaconsDetected.lastIndex) {
-                    val delta = beaconsDetected[i] - beaconsDetected[j]
-                    vectors.add(delta)
-                }
-            }
-        }
+        fun rotatedAndOffset() = if (naturalRotation == null || offset == null) null else rotatedBy(naturalRotation!!).map { it - offset!! }
 
-        fun rotatedBy(rotation: D2Array<Int>): List<D1Array<Int>> = vectors.map { beacon ->
+        fun rotatedBy(rotation: D2Array<Int>): List<D1Array<Int>> = beaconsDetected.map { beacon ->
             mk.ndarray(mk[
-                rotation[0][0] * beacon[0] + rotation[0][1] * beacon[0] + rotation[0][2] * beacon[0],
-                rotation[1][0] * beacon[1] + rotation[1][1] * beacon[1] + rotation[1][2] * beacon[1],
-                rotation[2][0] * beacon[2] + rotation[2][1] * beacon[2] + rotation[2][2] * beacon[2]
+                rotation[0][0] * beacon[0] + rotation[0][1] * beacon[1] + rotation[0][2] * beacon[2],
+                rotation[1][0] * beacon[0] + rotation[1][1] * beacon[1] + rotation[1][2] * beacon[2],
+                rotation[2][0] * beacon[0] + rotation[2][1] * beacon[1] + rotation[2][2] * beacon[2]
             ])
         }
     }
