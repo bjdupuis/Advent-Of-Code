@@ -34,7 +34,7 @@ perfumes: 1
                     propertyMap[propertyName]!! == propertyAmount.toInt()
                 } ?: false
             }
-        }
+        } ?: false
     }
 
     fun matchesRealCorrectSue(sueDescription: String): Boolean {
@@ -74,7 +74,7 @@ perfumes: 1
                     }
                 } ?: false
             }
-        }
+        } ?: false
     }
 
     override fun partTwo(): Any {

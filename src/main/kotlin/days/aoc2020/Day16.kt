@@ -99,7 +99,7 @@ class Day16: Day(2020, 16) {
 
         // now we have our column names, find our ticket "code"
         return validRangeNamesForColumns.filter {
-            it.value[0]?.startsWith("departure")
+            it.value[0]?.startsWith("departure") ?: false
         }.map { entry ->
             myIntTicket[entry.key]!!.toLong()
         }.reduce { acc, i -> acc * i }

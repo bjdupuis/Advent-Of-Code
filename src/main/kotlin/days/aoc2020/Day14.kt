@@ -35,7 +35,7 @@ class Day14: Day(2020, 14) {
             }
         }
 
-        return memory.filterNot { it.value == 0L }?.map { it.value }?.sum()
+        return memory.filterNot { it.value == 0L }?.map { it.value }?.sum() ?: 0
     }
 
     override fun partTwo(): Any {
@@ -65,7 +65,7 @@ class Day14: Day(2020, 14) {
             }
         }
 
-        return memory.filterNot { it.value == 0L }?.map { it.value }?.sum()
+        return memory.filterNot { it.value == 0L }?.map { it.value }?.sum() ?: 0
     }
 
     private fun addressSequence(mask: String, address: Long) = sequence {
