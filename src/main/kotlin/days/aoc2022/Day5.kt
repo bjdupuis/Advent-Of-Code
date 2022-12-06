@@ -12,12 +12,11 @@ class Day5 : Day(2022, 5) {
         return determineTopOfStacks(inputList, true)
     }
 
-    private fun determineTopOfStacks(input: List<String>, useTemporaryStack: Boolean): String {
+    fun determineTopOfStacks(input: List<String>, useTemporaryStack: Boolean): String {
         val stacks = mutableListOf<Stack<Char>>()
 
         input.takeWhile { it.isNotEmpty() }.let { stackDescription ->
             val numberOfStacks = stackDescription.last().last().toString().toInt()
-            println("Number of stacks is $numberOfStacks")
             repeat(numberOfStacks) {
                 stacks.add(Stack())
             }

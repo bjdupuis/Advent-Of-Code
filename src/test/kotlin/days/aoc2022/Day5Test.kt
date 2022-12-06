@@ -20,11 +20,11 @@ move 1 from 1 to 2
 
     @Test
     fun testPartOne() {
-        MatcherAssert.assertThat(day.determineTopOfStacksMovingOneCrateAtATime(input), `is`("CMZ"))
+        MatcherAssert.assertThat(day.determineTopOfStacks(input, false), `is`("CMZ"))
     }
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.determineTopOfStacksMovingAllCratesAtOnce(input), `is`("MCD"))
+        MatcherAssert.assertThat(day.determineTopOfStacks(input, true), `is`("MCD"))
     }
 }
