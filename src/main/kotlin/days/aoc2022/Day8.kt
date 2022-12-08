@@ -55,7 +55,6 @@ class Day8 : Day(2022, 8) {
                     calculateSightDistanceForDirection(forest, x, y, 0, 1) *
                     calculateSightDistanceForDirection(forest, x, y, 0, -1)
 
-                println("Score for $x,$y is $score")
                 if (score > highestScenicScore) highestScenicScore = score
             }
         }
