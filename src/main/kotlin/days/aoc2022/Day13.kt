@@ -12,19 +12,24 @@ class Day13 : Day(2022,13) {
     }
 
     fun calculateSumOfCountOfPairsInCorrectOrder(input: List<String>): Int {
-        return input.filter { it.isNotEmpty() }.windowed(2, 2).mapIndexed { index, packets ->
-            val left = parsePacket(packets.first())
-            val right = parsePacket(packets.last())
+        return input
+            .filter { it.isNotEmpty() }
+            .windowed(2, 2)
+            .mapIndexed { index, packets ->
+                val left = parsePacket(packets.first())
+                val right = parsePacket(packets.last())
 
-            if (left <= right) index + 1 else 0
-        }.sum()
+                if (left <= right) index + 1 else 0
+            }.sum()
     }
 
     fun calculateDecoderKey(input: List<String>): Int {
         val packets = input.filter { it.isNotEmpty() }.map { parsePacket(it) }
         return packets
             .plus(parsePacket("[[2]]"))
-            .plus(parsePacket("[[6]]")).sorted().mapIndexed { index, packet ->
+            .plus(parsePacket("[[6]]"))
+            .sorted()
+            .mapIndexed { index, packet ->
                 if (packet.name == "[[2]]" || packet.name == "[[6]]") {
                     index + 1
                 } else {
