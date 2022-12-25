@@ -39,33 +39,33 @@ class Snafu(val value: String) {
 }
 
 fun Long.toSnafu(): Snafu {
-    var divisor = 1L
-    var total = 0L
-    while (total + divisor * 2 < this) {
-        total += divisor * 2
-        divisor *= 5
+    var multiplicand = 1L
+    var maxForDigit = 0L
+    while (maxForDigit + multiplicand * 2 < this) {
+        maxForDigit += multiplicand * 2
+        multiplicand *= 5
     }
 
     val sb = StringBuilder()
     var remainder = this
-    while (divisor >= 1) {
+    while (multiplicand >= 1) {
         if (remainder > 0) {
-            if (remainder > divisor + total) {
+            if (remainder > multiplicand + maxForDigit) {
                 sb.append('2')
-                remainder -= 2 * divisor
-            } else if (remainder > total) {
+                remainder -= 2 * multiplicand
+            } else if (remainder > maxForDigit) {
                 sb.append('1')
-                remainder -= divisor
+                remainder -= multiplicand
             } else {
                 sb.append('0')
             }
         } else if (remainder < 0) {
-            if (abs(remainder) > divisor + total) {
+            if (abs(remainder) > multiplicand + maxForDigit) {
                 sb.append('=')
-                remainder += 2 * divisor
-            } else if (abs(remainder) > total) {
+                remainder += 2 * multiplicand
+            } else if (abs(remainder) > maxForDigit) {
                 sb.append('-')
-                remainder += divisor
+                remainder += multiplicand
             } else {
                 sb.append('0')
             }
@@ -73,8 +73,8 @@ fun Long.toSnafu(): Snafu {
             sb.append('0')
         }
 
-        divisor /= 5
-        total -= divisor * 2
+        multiplicand /= 5
+        maxForDigit -= multiplicand * 2
     }
 
     return Snafu(sb.toString())
