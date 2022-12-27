@@ -84,7 +84,7 @@ class Day21 : Day(2022, 21) {
     private fun calculateValue(current: Monkey, monkeyMap: Map<String, Monkey>): Long {
         try {
             if (current is MonkeyYell) {
-                return current.number.toLong()
+                return current.number
             } else if (current is MonkeyOperation) {
                 return current.operation.invoke(
                     calculateValue(
