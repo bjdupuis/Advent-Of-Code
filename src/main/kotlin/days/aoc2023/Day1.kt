@@ -28,32 +28,17 @@ class Day1: Day(2023, 1) {
 }
 
 fun String.firstDigit(includeSpelledOut: Boolean = false): Int {
-    val numbers = listOf("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
-    if (includeSpelledOut) {
-        for (i in indices) {
-            if (this[i].isDigit()) {
-                return this[i].digitToInt()
-            } else {
-                numbers.forEachIndexed { index, number ->
-                    if (i + number.length - 1 in indices) {
-                        if (substring(i, i + number.length) == number) {
-                            return index + 1
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        return first { it.isDigit() }.digitToInt()
-    }
-
-    throw IllegalStateException("That shouldn't happen")
+    return getDigit(includeSpelledOut)
 }
 
 fun String.lastDigit(includeSpelledOut: Boolean = false): Int {
+    return getDigit(includeSpelledOut, true)
+}
+
+fun String.getDigit(includeSpelledOut: Boolean, fromEnd: Boolean = false): Int {
     val numbers = listOf("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
     if (includeSpelledOut) {
-        for (i in indices.reversed()) {
+        for (i in (if (fromEnd) indices.reversed() else indices)) {
             if (this[i].isDigit()) {
                 return this[i].digitToInt()
             } else {
@@ -67,7 +52,7 @@ fun String.lastDigit(includeSpelledOut: Boolean = false): Int {
             }
         }
     } else {
-        return last { it.isDigit() }.digitToInt()
+        return if (fromEnd) last { it.isDigit() }.digitToInt() else first { it.isDigit() }.digitToInt()
     }
     throw IllegalStateException("That shouldn't happen")
 }
