@@ -1,0 +1,18 @@
+package days.aoc2022
+
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert
+import org.junit.Test
+
+class Day19Test {
+    val day = Day19()
+    val input = """
+Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
+Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
+      """.trimIndent().lines()
+
+    @Test
+    fun testPartOne() {
+        //MatcherAssert.assertThat(day.determineSumOfBlueprintQualityLevels(input, 24), `is`(33))
+    }
+}
