@@ -19,9 +19,7 @@ class Day1: Day(2023, 1) {
 
     fun calculatePartTwo(input: List<String>): Int {
         return input.sumOf { line ->
-            val result = line.firstDigit(true) * 10 + line.lastDigit(true)
-            println("Result is $result")
-            result
+            line.firstDigit(true) * 10 + line.lastDigit(true)
         }
     }
 
