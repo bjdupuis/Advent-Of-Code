@@ -60,10 +60,6 @@ class Day3 : Day(2023, 3) {
                         .filter { it.isWithin(inputList) && inputList[it.y][it.x].isDigit() }
                     val adjacentPartNumbers = adjacentPartNumberPositions(potentialGear, digitNeighbors)
                     if (adjacentPartNumbers.count() == 2) {
-                        println("Gear found at ${potentialGear}")
-                        adjacentPartNumbers.forEach {
-                            println("Part number at ${it}: ${partNumberFromPosition(it, inputList)}")
-                        }
                         sum += adjacentPartNumbers.fold(1) { acc, neighbor -> acc * partNumberFromPosition(neighbor, inputList) }
                     }
                 }
