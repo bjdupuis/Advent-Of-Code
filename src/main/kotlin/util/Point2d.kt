@@ -18,6 +18,17 @@ data class Point2d(val x: Int, val y: Int) {
         copy(y = y - 1),
     )
 
+    fun allNeighbors() = listOf(
+        copy(x = x - 1, y = y - 1),
+        copy(y = y - 1),
+        copy(x = x + 1, y = y - 1),
+        copy(x = x - 1),
+        copy(x = x + 1),
+        copy(x = x - 1, y = y + 1),
+        copy(y = y + 1),
+        copy(x = x + 1, y = y + 1),
+    )
+
 }
 
 data class Point2dl(val x: Long, val y: Long) {
