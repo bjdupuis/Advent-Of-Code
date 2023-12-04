@@ -112,7 +112,7 @@ class Day3 : Day(2023, 3) {
         val below = pointsWithDigits.filter { it.y == point.y + 1 }
         val beside = pointsWithDigits.filter { it.y == point.y }
 
-        return beside    + distinct(above) + distinct(below)
+        return beside + distinct(above) + distinct(below)
     }
 }
 
