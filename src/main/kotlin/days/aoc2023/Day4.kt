@@ -52,8 +52,7 @@ class Day4 : Day(2023, 4) {
             }
         }
         fun score(): Int {
-            val matches = matches()
-            return (2.0.pow(matches - 1)).toInt()
+            return (2.0.pow(matches() - 1)).toInt()
         }
 
         fun matches() = numbersOnCard.intersect(winningNumbers).size
