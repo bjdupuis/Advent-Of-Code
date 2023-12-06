@@ -1,3 +1,5 @@
 # Advent Of Code
 
 Based on Hugh Davie's [aoc-kotlin-starter](https://github.com/hughjdavey/aoc-kotlin-starter).
+
+Note that per AoC's recommendation, input files are not stored in the repo. They're expected to be found in `src/main/resources/<year>/input_day_<day>.txt`.
