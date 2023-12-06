@@ -18,13 +18,9 @@ class Day6 : Day(2023, 6) {
     }
 
     private fun calculateWaysToWin(time: Long, distance: Long): Int {
-        var winners = 0
-        for (millisHeldDown in 0 .. time) {
-            if (millisHeldDown * (time - millisHeldDown) > distance) {
-                winners++
-            }
+        return (0..time).count { millisHeldDown ->
+            millisHeldDown * (time - millisHeldDown) > distance
         }
-        return winners
     }
 
     override fun partTwo(): Any {
