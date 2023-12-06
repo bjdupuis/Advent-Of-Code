@@ -1,6 +1,5 @@
-package days.aco2023
+package days.aoc2023
 
-import days.aoc2023.Day4
 import org.hamcrest.MatcherAssert
 import org.hamcrest.core.Is.`is`
 import org.junit.Test
