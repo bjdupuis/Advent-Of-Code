@@ -54,13 +54,17 @@ class Day5 : Day(2023, 5) {
             }
         }
 
-        return seedGroups.minOf { seedGroup ->
+        var seedCount = 0L
+        val result = seedGroups.minOf { seedGroup ->
             (seedGroup.first()..seedGroup.first() + seedGroup.last()).minOf {seed ->
+                seedCount++
                 maps.fold(seed) { current, map ->
                     map.destinationForSource(current)
                 }
             }
         }
+        println("Looked at $seedCount seeds")
+        return result
     }
 
     private class SourceToDestinationMap {
