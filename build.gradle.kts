@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-    mainClass.set("util.Runner")
+    mainClass.set(project.findProperty("main").toString())
 }
 
 version = "1.0-SNAPSHOT"
@@ -21,6 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:multik-api:0.1.1")
     implementation("org.jetbrains.kotlinx:multik-default:0.1.1")
     implementation("org.reflections", "reflections", "0.9.12")
+    implementation("joda-time:joda-time:2.10.10")
     testImplementation("junit", "junit", "4.13.1")
     testImplementation("org.hamcrest", "hamcrest", "2.2")
 }
