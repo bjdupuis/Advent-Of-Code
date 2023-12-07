@@ -1,6 +1,7 @@
 package util
 
 import days.Day
+import org.joda.time.DateTime
 import org.reflections.Reflections
 import kotlin.math.max
 import kotlin.time.ExperimentalTime
@@ -15,20 +16,15 @@ object Runner {
     @JvmStatic
     fun main(args: Array<String>) {
         if (args.isNotEmpty()) {
-            val year = try {
-                args[0].toInt()
-            }
-            catch (e: NumberFormatException) {
-                printError("Year argument must be an integer")
-                return
-            }
-            val day = try {
-                args[1].toInt()
-            }
-            catch (e: NumberFormatException) {
-                printError("Days.Day argument must be an integer")
-                return
-            }
+            val (year, day) =
+                if (args.size == 1 && "today" == args[0]) {
+                    listOf(DateTime.now().year.toString(), DateTime.now().dayOfMonth)
+                } else {
+                    if (args.size != 2) {
+                        printError("Must specify year and day")
+                    }
+                    listOf(args[0], args[1])
+                }
 
             reflections = Reflections("days/aoc$year")
 

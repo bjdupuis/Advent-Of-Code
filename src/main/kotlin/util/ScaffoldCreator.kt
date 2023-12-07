@@ -2,10 +2,8 @@ package util
 
 import org.joda.time.DateTime
 import java.io.File
-import java.time.Instant
-import java.util.Date
 
-object TemplateCreator {
+object ScaffoldCreator {
 
     @JvmStatic
     fun main(args: Array<String>) {
