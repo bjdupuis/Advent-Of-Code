@@ -115,7 +115,3 @@ class Day3 : Day(2023, 3) {
         return beside + distinct(above) + distinct(below)
     }
 }
-
-fun Point2d.isWithin(inputList: List<String>): Boolean {
-    return y in inputList.indices && x in inputList.first().indices
-}
