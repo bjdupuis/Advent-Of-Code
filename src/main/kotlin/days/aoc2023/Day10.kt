@@ -181,6 +181,9 @@ class Day10 : Day(2023, 10) {
         for (y in point.y * 3 until point.y * 3 + 3) {
             for (x in point.x * 3 until point.x * 3 + 3) {
                 val point = Point2d(x,y)
+
+                // basically, if any part of the 3x3 square is either "outside" or is not empty space
+                // (e.g. a pipe segment) it's an "inside" block
                 if (outside.contains(point)) {
                     return false
                 } else if ('.' != expanded[point]) {
