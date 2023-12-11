@@ -14,9 +14,13 @@ class Array2d<T>(val width: Int, val height: Int, private val default: T?) {
         Array(width) { default }
     }
 
-    fun getRow(y: Int): Array<T> {
-        return storage[y] as Array<T>
-    }
+    fun getRow(y: Int): Array<T> =
+        storage[y] as Array<T>
+
+
+     fun getColumn(x: Int): Array<T> {
+         return Array(storage.size) {storage[it][x]} as Array<T>
+     }
 
     operator fun <T> get(point: Point2d): T? {
         return storage[point.y][point.x] as T?
