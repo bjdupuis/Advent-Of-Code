@@ -79,8 +79,8 @@ class Day11 : Day(2023, 11) {
          */
 
         val galaxies = expandedUniverseMap.flatMapIndexed { y, chars ->
-            chars.mapIndexed { x, c -> if (c == '#') Point2d(x, y) else null}
-        }.filterNotNull()
+            chars.mapIndexedNotNull { x, c -> if (c == '#') Point2d(x, y) else null}
+        }
 
         val visited = mutableSetOf<Point2d>()
         return galaxies.sumOf { galaxy ->
@@ -111,7 +111,7 @@ class Day11 : Day(2023, 11) {
         }
 
         val galaxies = universeMap.flatMapIndexed { y, chars ->
-            chars.mapIndexed { x, c ->
+            chars.mapIndexedNotNull { x, c ->
                 if (c == '#') {
                     // well, this is easier, no?
                     Point2d(
@@ -122,7 +122,7 @@ class Day11 : Day(2023, 11) {
                     null
                 }
             }
-        }.filterNotNull()
+        }
 
         /*
         galaxies.forEach { galaxy ->
