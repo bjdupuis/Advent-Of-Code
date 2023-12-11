@@ -36,6 +36,9 @@ class Day11 : Day(2023, 11) {
             }
         }
 
+        // keeping this solution for posterity. Do I find it humorous that the time I took diddling
+        // with accurately expanding the universe was longer than I took to do the required math
+        // for part 2? Absolutely.
         val expandedUniverseMap = Array(universeMap.size + rowsToExpand.size) { Array(universeMap.first().size + columnsToExpand.size) { ' ' } }
         var expandedY = 0
         for (y in universeMap.indices) {
@@ -75,14 +78,9 @@ class Day11 : Day(2023, 11) {
         }
          */
 
-        val galaxies = mutableListOf<Point2d>()
-        expandedUniverseMap.forEachIndexed { y, line ->
-            line.forEachIndexed { x, c ->
-                if (c == '#') {
-                    galaxies.add(Point2d(x,y))
-                }
-            }
-        }
+        val galaxies = expandedUniverseMap.flatMapIndexed { y, chars ->
+            chars.mapIndexed { x, c -> if (c == '#') Point2d(x, y) else null}
+        }.filterNotNull()
 
         val visited = mutableSetOf<Point2d>()
         return galaxies.sumOf { galaxy ->
@@ -112,14 +110,19 @@ class Day11 : Day(2023, 11) {
             }
         }
 
-        val galaxies = mutableListOf<Point2d>()
-        universeMap.forEachIndexed { y, line ->
-            line.forEachIndexed { x, c ->
+        val galaxies = universeMap.flatMapIndexed { y, chars ->
+            chars.mapIndexed { x, c ->
                 if (c == '#') {
-                    galaxies.add(Point2d(x + columnsToExpand.filter { it < x }.size * (expansionFactor - 1), y + rowsToExpand.filter { it < y }.size * (expansionFactor - 1)))
+                    // well, this is easier, no?
+                    Point2d(
+                        x + columnsToExpand.filter { it < x }.size * (expansionFactor - 1),
+                        y + rowsToExpand.filter { it < y }.size * (expansionFactor - 1)
+                    )
+                } else {
+                    null
                 }
             }
-        }
+        }.filterNotNull()
 
         /*
         galaxies.forEach { galaxy ->
