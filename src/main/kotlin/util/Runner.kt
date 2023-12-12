@@ -23,7 +23,7 @@ object Runner {
                     if (args.size != 2) {
                         printError("Must specify year and day")
                     }
-                    listOf(args[0], args[1])
+                    listOf(args[0].toInt(), args[1].toInt())
                 }
 
             reflections = Reflections("days/aoc$year")
