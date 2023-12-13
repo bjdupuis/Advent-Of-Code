@@ -234,14 +234,14 @@ fun Point2d.isConnectedTo(other: Point2d, input: List<String>) =
         false
     } else if (other.y < y) {
         // our northern neighbor
-        input[y][x] in listOf('S', '|', 'J', 'L') && input[other.y][other.x] in listOf('|', '7', 'F')
+        input[y][x] in "S|JL" && input[other.y][other.x] in "|7F"
     } else if (other.y > y) {
         // our southern neighbor
-        input[y][x] in listOf('S', '|', '7', 'F') && input[other.y][other.x] in listOf('|', 'J', 'L')
+        input[y][x] in "S|7F" && input[other.y][other.x] in "|JL"
     } else if (other.x < x) {
         // our western neighbor
-        input[y][x] in listOf('S', '-', '7', 'J') && input[other.y][other.x] in listOf('-', 'F', 'L')
+        input[y][x] in "S-7J" && input[other.y][other.x] in "-FL"
     } else {
         // our eastern neighbor
-        input[y][x] in listOf('S', '-', 'F', 'L') && input[other.y][other.x] in listOf('-', '7', 'J')
+        input[y][x] in "S-FL" && input[other.y][other.x] in "-7J"
     }

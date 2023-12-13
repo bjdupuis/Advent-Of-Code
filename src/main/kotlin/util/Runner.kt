@@ -56,10 +56,15 @@ object Runner {
     private fun printDay(dayClass: Class<out Day>) {
         println("\n=== DAY ${dayNumber(dayClass.simpleName)} ===")
         val day = dayClass.constructors[0].newInstance() as Day
-
-        val partOne = measureTimedValue { day.partOne() }
-        val partTwo = measureTimedValue { day.partTwo() }
-        printParts(partOne, partTwo)
+        try {
+            val partOne = measureTimedValue { day.partOne() }
+            val partTwo = measureTimedValue { day.partTwo() }
+            printParts(partOne, partTwo)
+        } catch(e: Exception) {
+            println("\n***** Failed with exception *****")
+            println(e.message)
+            e.printStackTrace()
+        }
     }
 
     private fun printParts(partOne: TimedValue<Any>, partTwo: TimedValue<Any>) {

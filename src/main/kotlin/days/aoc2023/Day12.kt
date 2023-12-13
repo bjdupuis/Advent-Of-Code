@@ -54,7 +54,7 @@ class Day12 : Day(2023, 12) {
     }
 
     fun calculatePartTwo(input: List<String>): Long {
-        return input.sumOf { line ->
+        val result = input.sumOf { line ->
             val (record, contiguousSpringsList) = line.split(" ").let {
                 it.first().plus("?").repeat(5).dropLast(1) to it.last().plus(",").repeat(5).dropLast(1).split(",").map { it.toInt() }
             }
@@ -62,11 +62,16 @@ class Day12 : Day(2023, 12) {
             // can't brute force this :|
             val count = countValidRemaining(record, contiguousSpringsList)
             //println("Found $count valid configs for $record")
+
             count
         }
+
+        println("Cache contains ${memoize.size} entries and was hit $hitCount times")
+        return result
     }
 
-    val memoize = mutableMapOf<Pair<String, List<Int>>, Long>()
+    private val memoize = mutableMapOf<Pair<String, List<Int>>, Long>()
+    private var hitCount = 0L
     private fun countValidRemaining(record: String, contiguousSprings: List<Int>): Long {
         if (contiguousSprings.isEmpty()) {
             // if there are any other broken springs in the (optional) remainder of the record
@@ -78,7 +83,14 @@ class Day12 : Day(2023, 12) {
         }
 
         var count = 0L
-        return memoize.getOrPut(Pair(record, contiguousSprings)) {
+
+        // stats!
+        val pair = Pair(record, contiguousSprings)
+        if (memoize.contains(pair)) {
+            hitCount++
+        }
+
+        return memoize.getOrPut(pair) {
             if (record.first() == '#' || record.first() == '?') {
                 val contiguousLength = contiguousSprings.first()
                 // count as though the ? is actually a #... we've (potentially) found a group of
