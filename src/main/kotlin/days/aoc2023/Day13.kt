@@ -3,7 +3,7 @@ package days.aoc2023
 import days.Day
 import util.CharArray2d
 import util.Point2d
-import kotlin.math.max
+import util.downUntil
 import kotlin.math.min
 
 class Day13 : Day(2023, 13) {
@@ -16,24 +16,29 @@ class Day13 : Day(2023, 13) {
     }
 
     fun calculatePartOne(input: List<String>): Int {
-         return input.fold(mutableListOf<MutableList<String>>(mutableListOf())) { lists, current ->
-             if (current.isEmpty()) {
-                 lists.add(mutableListOf())
-             } else {
-                 lists.last().add(current)
-             }
-             lists
-         }.filter {
-             it.isNotEmpty()
-         }.map { desertMapList ->
-             CharArray2d(desertMapList)
-         }.sumOf {
-             (findMirror(it.height, it::getRow) ?: 0) * 100 + (findMirror(it.width, it::getColumn) ?: 0)
-         }
+        return input.fold(mutableListOf<MutableList<String>>(mutableListOf())) { lists, current ->
+            if (current.isEmpty()) {
+                lists.add(mutableListOf())
+            } else {
+                lists.last().add(current)
+            }
+            lists
+        }.filter {
+            it.isNotEmpty()
+        }.map { desertMapList ->
+            CharArray2d(desertMapList)
+        }.sumOf {
+            (findMirror(it.height, it::getRow) ?: 0) * 100 + (findMirror(it.width, it::getColumn)
+                ?: 0)
+        }
     }
 
-    private fun findMirror(size: Int, accessor: (Int) -> CharArray, ignoreAnswer: Int? = null): Int? {
-        outer@for (index in 0 until size - 1) {
+    private fun findMirror(
+        size: Int,
+        accessor: (Int) -> CharArray,
+        ignoreAnswer: Int? = null
+    ): Int? {
+        outer@ for (index in 0 until size - 1) {
             if (ignoreAnswer != null) {
                 if (index + 1 == ignoreAnswer) {
                     continue
@@ -70,14 +75,15 @@ class Day13 : Day(2023, 13) {
             val avoidColumn = findMirror(desertMap.width, desertMap::getColumn)
 
             var newAnswer = -1
-            outer@for (y in 0 until desertMap.height) {
+            outer@ for (y in 0 until desertMap.height) {
                 for (x in 0 until desertMap.width) {
                     val newMap = desertMap.clone() as CharArray2d
                     val point = Point2d(x, y)
                     newMap[point] = if (newMap[point] == '.') '#' else '.'
 
-                    newAnswer = findMirror(newMap.height, newMap::getRow, avoidRow)?.let { it * 100 } ?:
-                        findMirror(newMap.width, newMap::getColumn, avoidColumn) ?: -1
+                    newAnswer =
+                        findMirror(newMap.height, newMap::getRow, avoidRow)?.let { it * 100 }
+                            ?: findMirror(newMap.width, newMap::getColumn, avoidColumn) ?: -1
                     if (newAnswer >= 0) {
                         break@outer
                     }
@@ -90,10 +96,4 @@ class Day13 : Day(2023, 13) {
             newAnswer
         }
     }
-
-}
-
-infix fun Int.downUntil(to: Int): IntProgression {
-    if (to >= Int.MAX_VALUE) return IntRange.EMPTY
-    return this downTo (to + 1)
 }

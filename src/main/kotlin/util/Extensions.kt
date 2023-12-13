@@ -29,3 +29,7 @@ fun Collection<Int>.lcm(): Long {
     return primesFound.fold(1) { acc, i -> acc  * i}
 }
 
+infix fun Int.downUntil(to: Int): IntProgression {
+    if (to >= Int.MAX_VALUE) return IntRange.EMPTY
+    return this downTo (to + 1)
+}
