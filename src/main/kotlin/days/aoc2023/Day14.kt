@@ -82,7 +82,7 @@ class Day14 : Day(2023, 14) {
                 // we have the index of the start of a cycle, we have the length of the cycle.
                 // If we weren't a caveman we should be able to math this out.
                 val cycleSize = i - startOfCycle
-                val additionalCyclesNeeded = ((1000000000 - i) % cycleSize + 1)
+                val additionalCyclesNeeded = ((1000000000 - i) % cycleSize) + 1
                 for (remaining in 1 .. additionalCyclesNeeded) {
                     val cache = memoize.getOrPut(rocks.hashCode()) {
                         val spun = spinCycle(rocks)
