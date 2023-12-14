@@ -37,6 +37,10 @@ data class Point2d(val x: Int, val y: Int) {
         return y in 0 until array.height && x in 0 until array.width
     }
 
+    fun isWithin(array:CharArray2d): Boolean {
+        return y in 0 until array.height && x in 0 until array.width
+    }
+
     val westernNeighbor: Point2d by lazy { this.copy(x = this.x - 1) }
     val easternNeighbor: Point2d by lazy { this.copy(x = this.x + 1) }
     val northernNeighbor: Point2d by lazy { this.copy(y = this.y - 1) }

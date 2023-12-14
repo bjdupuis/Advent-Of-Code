@@ -69,4 +69,24 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
     operator fun set(point: Point2d, value: Char) {
         storage[point.y][point.x] = value
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CharArray2d
+
+        if (width != other.width) return false
+        if (height != other.height) return false
+        return storage.contentDeepEquals(other.storage)
+    }
+
+    override fun hashCode(): Int {
+        var result = width
+        result = 31 * result + height
+        result = 31 * result + storage.contentDeepHashCode()
+        return result
+    }
+
+
 }
