@@ -46,12 +46,10 @@ class Day15 : Day(2023, 15) {
             }
         }
 
-        return boxes.keys.sumOf { boxNumber ->
-            var sum = 0
-            boxes[boxNumber]!!.forEachIndexed { index, lens ->
-                sum += (boxNumber + 1) * (index + 1) * lens.second
+        return boxes.entries.sumOf { box ->
+            box.value.withIndex().sumOf { (lens, lensIndex) ->
+                (box.key + 1) * (lens + 1) * lensIndex.second
             }
-            sum
         }
     }
 }
