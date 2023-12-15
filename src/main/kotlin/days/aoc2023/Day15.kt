@@ -26,7 +26,7 @@ class Day15 : Day(2023, 15) {
     fun calculatePartTwo(input: String): Int {
         val boxes = mutableMapOf<Int,MutableList<Pair<String,Int>>>()
         input.split(",").forEach { step ->
-            Regex("(\\w+)([-=])(\\d*)").matchEntire(step)?.destructured?.let { (label,operation,focalLength) ->
+            Regex("(\\w+)([-=])(\\d*)").matchEntire(step)?.destructured?.let { (label, operation, focalLength) ->
                 val boxNumber = hashValueOf(label)
                 val lensList = boxes.getOrPut(boxNumber) { mutableListOf() }
                 when (operation) {
@@ -47,8 +47,8 @@ class Day15 : Day(2023, 15) {
         }
 
         return boxes.entries.sumOf { box ->
-            box.value.withIndex().sumOf { (lens, lensIndex) ->
-                (box.key + 1) * (lens + 1) * lensIndex.second
+            box.value.withIndex().sumOf { (lensIndex, lens) ->
+                (box.key + 1) * (lensIndex + 1) * lens.second
             }
         }
     }
