@@ -101,6 +101,9 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
     val rowIndices: IntRange = (0 until width)
     val columnIndices: IntRange = (0 until height)
 
+    val maxColumnIndex = width - 1
+    val maxRowIndex = height - 1
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

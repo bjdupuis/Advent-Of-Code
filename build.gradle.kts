@@ -41,7 +41,8 @@ tasks.test {
         // include today's tests
         includeTestsMatching("days.aoc${year}.Day${day}Test.*")
 
-        includeTestsMatching("*PathfindingTest*")
+        // Don't test this unless we change the pathfinder
+        //includeTestsMatching("*PathfindingTest*")
     }
 }
 
