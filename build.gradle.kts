@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.LocalDate
 
 plugins {
     application
@@ -29,3 +30,18 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+
+
+tasks.test {
+    filter {
+        val year = LocalDate.now().year
+        val day = LocalDate.now().dayOfMonth
+
+        // include today's tests
+        includeTestsMatching("days.aoc${year}.Day${day}Test.*")
+
+        includeTestsMatching("*PathfindingTest*")
+    }
+}
+

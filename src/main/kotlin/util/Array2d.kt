@@ -70,6 +70,37 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
         storage[point.y][point.x] = value
     }
 
+    fun findFirst(value: Char): Point2d? {
+        iterator.forEach {
+            if (this[it] == value) {
+                return it
+            }
+        }
+        return null
+    }
+
+    val iterator: Iterator<Point2d> = object : Iterator<Point2d> {
+        var currentRow = 0
+        var currentColumn = 0
+        override fun hasNext() =
+            currentRow < height && currentColumn < width
+
+        override fun next(): Point2d {
+            val point = Point2d(currentColumn, currentRow)
+            if (currentColumn == width - 1) {
+                currentColumn = 0
+                currentRow++
+            } else {
+                currentColumn++
+            }
+            return point
+        }
+
+    }
+
+    val rowIndices: IntRange = (0 until width)
+    val columnIndices: IntRange = (0 until height)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
