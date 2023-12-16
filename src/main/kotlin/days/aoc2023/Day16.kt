@@ -38,6 +38,7 @@ class Day16 : Day(2023, 16) {
     private fun calculateEnergizedTilesFromBeam(tiles: CharArray2d, startingBeam: Pair<Point2d, Point2d.Directions>): Int {
         val energizedTiles = mutableSetOf<Point2d>()
         val activeBeams = mutableListOf(startingBeam)
+        val seenBeams = mutableSetOf<Pair<Point2d, Point2d.Directions>>()
 
         fun nextTileLocation(current: Point2d, direction: Point2d.Directions): Point2d? {
             return if ((current + direction.delta).isWithin(tiles)) {
@@ -47,7 +48,39 @@ class Day16 : Day(2023, 16) {
             }
         }
 
-        val seenBeams = mutableSetOf<Pair<Point2d, Point2d.Directions>>()
+        fun splitBeam(beam: Pair<Point2d, Point2d.Directions>, newDirections: Set<Point2d.Directions>) {
+            if (beam.second in newDirections) {
+                nextTileLocation(beam.first, beam.second)?.let {
+                    activeBeams.add(it to beam.second)
+                }
+            } else {
+                newDirections.forEach { direction ->
+                    nextTileLocation(beam.first, direction)?.let {
+                        activeBeams.add(it to direction)
+                    }
+                }
+            }
+        }
+
+        val rightSlant = mapOf(
+            Point2d.Directions.North to Point2d.Directions.East,
+            Point2d.Directions.East to Point2d.Directions.North,
+            Point2d.Directions.South to Point2d.Directions.West,
+            Point2d.Directions.West to Point2d.Directions.South
+        )
+        val leftSlant = mapOf(
+            Point2d.Directions.North to Point2d.Directions.West,
+            Point2d.Directions.West to Point2d.Directions.North,
+            Point2d.Directions.South to Point2d.Directions.East,
+            Point2d.Directions.East to Point2d.Directions.South
+        )
+        fun turnBeam(beam: Pair<Point2d, Point2d.Directions>, map: Map<Point2d.Directions,Point2d.Directions>) {
+            map[beam.second]?.let { newDirection ->
+                nextTileLocation(beam.first, newDirection)?.let {
+                    activeBeams.add(it to newDirection)
+                }
+            }
+        }
 
         while (activeBeams.isNotEmpty()) {
             val beam = activeBeams.removeFirst()
@@ -62,68 +95,10 @@ class Day16 : Day(2023, 16) {
                 '.' -> nextTileLocation(beam.first, beam.second)?.let {
                     activeBeams.add(it to beam.second)
                 }
-
-                '/' -> if (beam.second == Point2d.Directions.East) {
-                    nextTileLocation(beam.first, Point2d.Directions.North)?.let {
-                        activeBeams.add(it to Point2d.Directions.North)
-                    }
-                } else if (beam.second == Point2d.Directions.West) {
-                    nextTileLocation(beam.first, Point2d.Directions.South)?.let {
-                        activeBeams.add(it to Point2d.Directions.South)
-                    }
-                } else if (beam.second == Point2d.Directions.North) {
-                    nextTileLocation(beam.first, Point2d.Directions.East)?.let {
-                        activeBeams.add(it to Point2d.Directions.East)
-                    }
-                } else {
-                    nextTileLocation(beam.first, Point2d.Directions.West)?.let {
-                        activeBeams.add(it to Point2d.Directions.West)
-                    }
-                }
-
-                '\\' -> if (beam.second == Point2d.Directions.East) {
-                    nextTileLocation(beam.first, Point2d.Directions.South)?.let {
-                        activeBeams.add(it to Point2d.Directions.South)
-                    }
-                } else if (beam.second == Point2d.Directions.West) {
-                    nextTileLocation(beam.first, Point2d.Directions.North)?.let {
-                        activeBeams.add(it to Point2d.Directions.North)
-                    }
-                } else if (beam.second == Point2d.Directions.North) {
-                    nextTileLocation(beam.first, Point2d.Directions.West)?.let {
-                        activeBeams.add(it to Point2d.Directions.West)
-                    }
-                } else {
-                    nextTileLocation(beam.first, Point2d.Directions.East)?.let {
-                        activeBeams.add(it to Point2d.Directions.East)
-                    }
-                }
-
-                '|' -> if (beam.second == Point2d.Directions.North || beam.second == Point2d.Directions.South) {
-                    nextTileLocation(beam.first, beam.second)?.let {
-                        activeBeams.add(it to beam.second)
-                    }
-                } else {
-                    nextTileLocation(beam.first, Point2d.Directions.North)?.let {
-                        activeBeams.add(it to Point2d.Directions.North)
-                    }
-                    nextTileLocation(beam.first, Point2d.Directions.South)?.let {
-                        activeBeams.add(it to Point2d.Directions.South)
-                    }
-                }
-
-                '-' -> if (beam.second == Point2d.Directions.East || beam.second == Point2d.Directions.West) {
-                    nextTileLocation(beam.first, beam.second)?.let {
-                        activeBeams.add(it to beam.second)
-                    }
-                } else {
-                    nextTileLocation(beam.first, Point2d.Directions.East)?.let {
-                        activeBeams.add(it to Point2d.Directions.East)
-                    }
-                    nextTileLocation(beam.first, Point2d.Directions.West)?.let {
-                        activeBeams.add(it to Point2d.Directions.West)
-                    }
-                }
+                '/' -> turnBeam(beam, rightSlant)
+                '\\' -> turnBeam(beam, leftSlant)
+                '|' -> splitBeam(beam, setOf(Point2d.Directions.North, Point2d.Directions.South))
+                '-' -> splitBeam(beam, setOf(Point2d.Directions.East, Point2d.Directions.West))
             }
         }
 
