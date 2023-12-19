@@ -33,3 +33,11 @@ infix fun Int.downUntil(to: Int): IntProgression {
     if (to >= Int.MAX_VALUE) return IntRange.EMPTY
     return this downTo (to + 1)
 }
+
+infix fun Int.toward(to: Int): IntProgression {
+    val step = if (this > to) -1 else 1
+    return IntProgression.fromClosedRange(this, to, step)
+}
+
+inline fun Int.isOdd(): Boolean = this % 2 == 1
+inline fun Int.isEven(): Boolean = this % 2 == 0

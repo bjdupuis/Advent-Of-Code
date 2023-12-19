@@ -39,6 +39,7 @@ tasks.test {
         val day = LocalDate.now().dayOfMonth
 
         // include today's tests
+        //includeTestsMatching("*")
         includeTestsMatching("days.aoc${year}.Day${day}Test.*")
 
         // Don't test this unless we change the pathfinder

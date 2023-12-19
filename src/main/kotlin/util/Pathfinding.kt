@@ -1,5 +1,7 @@
 package util
 
+import java.util.PriorityQueue
+
 class Pathfinding<VertexType> {
     fun dfs(
         start: VertexType,
@@ -53,7 +55,6 @@ class Pathfinding<VertexType> {
         )
     }
 
-
     private fun iteratePath(
         potentialPath: ArrayDeque<Pair<VertexType, MutableList<VertexType>>>,
         neighborIterator: (VertexType) -> List<VertexType>,
@@ -77,5 +78,39 @@ class Pathfinding<VertexType> {
 
         return listOf()
     }
+
+    fun dijkstraShortestPath(
+        start: VertexType,
+        neighborIterator: (VertexType) -> List<VertexType>,
+        neighborFilter: (VertexType) -> Boolean,
+        edgeCost: (VertexType, VertexType) -> Int,
+        terminationCondition: (VertexType) -> Boolean
+    ): Int {
+        val frontier = PriorityQueue(compareBy<Pair<VertexType, Int>> { it.second })
+        val costSoFar = mutableMapOf<VertexType, Int>()
+        val cameFrom = mutableMapOf<VertexType, VertexType?>()
+        cameFrom[start] = null
+        costSoFar[start] = 0
+        frontier.add(start to 0)
+        var current: Pair<VertexType, Int>? = null
+        while (frontier.isNotEmpty()) {
+            current = frontier.poll()
+            if (terminationCondition(current.first)) {
+                break;
+            } else {
+                neighborIterator(current.first).filter(neighborFilter).forEach { neighbor ->
+                    val cost = costSoFar[current.first]!!.plus(edgeCost(current.first, neighbor))
+                    if (!costSoFar.containsKey(neighbor) || cost < costSoFar[neighbor]!!) {
+                        costSoFar[neighbor] = cost
+                        frontier.add(neighbor to cost)
+                        cameFrom[neighbor] = current.first
+                    }
+                }
+            }
+        }
+
+        return costSoFar[current!!.first]!!
+    }
+
 }
 

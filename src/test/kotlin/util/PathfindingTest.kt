@@ -50,4 +50,26 @@ class PathfindingTest {
         MatcherAssert.assertThat(path.size, `is`(8))
     }
 
+    val dijkstraMap = """
+012345
+111134
+237145
+223133
+444112
+    """.trimIndent().lines()
+    @Test
+    fun `test that dijkstra does something`() {
+        val pathfinding = Pathfinding<Point2d>()
+        val map = CharArray2d(dijkstraMap)
+        val result = pathfinding.dijkstraShortestPath(
+            start = Point2d(0, 0),
+            neighborIterator = Point2d::neighbors,
+            neighborFilter = { it.isWithin(map) },
+            edgeCost = { _, destination -> map[destination].digitToInt()},
+            terminationCondition = { it == Point2d(map.maxColumnIndex, map.maxRowIndex)}
+        )
+
+        MatcherAssert.assertThat(result, `is`(10))
+    }
+
 }
