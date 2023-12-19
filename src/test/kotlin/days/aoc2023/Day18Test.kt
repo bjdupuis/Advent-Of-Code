@@ -25,11 +25,11 @@ U 2 (#7a21e3)
 
     @Test
     fun testPartOne() {
-        MatcherAssert.assertThat(day.calculatePartOne(input), `is`(62))
+        MatcherAssert.assertThat(day.calculatePartOneShoelace(input), `is`(62))
     }
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.calculatePartTwo(input), `is`(0))
+        MatcherAssert.assertThat(day.calculatePartTwo(input), `is`(952408144115L))
     }
 }

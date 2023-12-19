@@ -12,7 +12,7 @@ data class Point2d(val x: Int, val y: Int) {
     }
 
     operator fun minus(other: Point2d): Point2d {
-        return(Point2d(x - other.x, y - other.y))
+        return Point2d(x - other.x, y - other.y)
     }
 
     fun neighbors() = listOf(
@@ -76,4 +76,13 @@ data class Point2dl(val x: Long, val y: Long) {
     fun distanceTo(other: Point2dl): Long {
         return abs(other.x - x) + abs(other.y - y)
     }
+
+    operator fun plus(other: Point2dl): Point2dl {
+        return Point2dl(x + other.x, y + other.y)
+    }
+
+    operator fun minus(other: Point2dl): Point2dl {
+        return Point2dl(x - other.x, y - other.y)
+    }
+
 }

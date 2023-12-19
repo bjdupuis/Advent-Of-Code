@@ -2,6 +2,7 @@ package days.aoc2023
 
 import days.Day
 import util.Point2d
+import util.Point2dl
 import util.isOdd
 import util.toward
 import kotlin.math.max
@@ -9,7 +10,7 @@ import kotlin.math.min
 
 class Day18 : Day(2023, 18) {
     override fun partOne(): Any {
-        return calculatePartOne(inputList)
+        return calculatePartOneShoelace(inputList)
     }
 
     override fun partTwo(): Any {
@@ -123,9 +124,107 @@ class Day18 : Day(2023, 18) {
 
         fun isHorizontal(): Boolean = xRange.first != xRange.last
         fun isVertical(): Boolean = yRange.first != yRange.last
+
+        lateinit var start: Point2dl
+        lateinit var end: Point2dl
+
+        fun calculateExtrema(origin: Point2dl): Point2dl {
+            start = origin
+            when (direction) {
+                "U" -> {
+                    end = start.copy(y = start.y - length)
+                }
+                "D" -> {
+                    end = start.copy(y = start.y + length)
+                }
+                "R" -> {
+                    end = start.copy(x = start.x + length)
+                }
+                "L" -> {
+                    end = start.copy(x = start.x - length)
+                }
+            }
+
+            return end
+        }
+
     }
 
-    fun calculatePartTwo(input: List<String>): Int {
-        return 0
+    data class RealDigInstruction(val encoded: String) {
+        val length = encoded.take(5).toInt(16)
+        val direction = when (encoded.last()) {
+            '0' -> 'R'
+            '1' -> 'D'
+            '2' -> 'L'
+            '3' -> 'U'
+            else -> throw IllegalStateException("Oops")
+        }.toString()
+
+        lateinit var start: Point2dl
+
+        fun calculateExtrema(origin: Point2dl): Point2dl {
+            start = origin
+            return when (direction) {
+                "U" -> {
+                    start.copy(y = start.y - length)
+                }
+                "D" -> {
+                    start.copy(y = start.y + length)
+                }
+                "R" -> {
+                    start.copy(x = start.x + length)
+                }
+                "L" -> {
+                    start.copy(x = start.x - length)
+                }
+                else -> throw IllegalStateException("oh dear")
+            }
+        }
+
+
+    }
+
+    fun calculatePartOneShoelace(input: List<String>): Long {
+        var cursor = Point2dl(0,0)
+        val instructions = input.mapNotNull {
+            Regex("(\\w) (\\d+) \\(#(\\w+)\\)").matchEntire(it)?.destructured?.let { (direction, length, color) ->
+                DigInstruction(direction, length.toInt(), color)
+            }
+        }
+        instructions.fold(cursor) { cursor, instruction ->
+            instruction.calculateExtrema(cursor)
+        }
+
+        var area = 0L
+        instructions.zipWithNext { a, b ->
+            area += (a.start.x * b.start.y) - (a.start.y * b.start.x)
+        }
+        val last = instructions.last()
+        val first = instructions.first()
+        //area += (last.start.x * first.start.y) - (last.start.y * first.start.x)
+
+        return (area / 2) + (instructions.sumOf { it.length } / 2) + 1
+    }
+
+    fun calculatePartTwo(input: List<String>): Long {
+        var cursor = Point2dl(0,0)
+        val instructions = input.mapNotNull {
+            Regex("(\\w) (\\d+) \\(#(\\w+)\\)").matchEntire(it)?.destructured?.let { (_, _, encoded) ->
+                RealDigInstruction(encoded)
+            }
+        }
+        instructions.fold(cursor) { cursor, instruction ->
+            instruction.calculateExtrema(cursor)
+        }
+
+        var area = 0L
+        instructions.zipWithNext { a, b ->
+            area += (a.start.x * b.start.y) - (a.start.y * b.start.x)
+        }
+        val last = instructions.last()
+        val first = instructions.first()
+        area += (last.start.x * first.start.y) - (last.start.y * first.start.x)
+
+        return return (area / 2) + (instructions.sumOf { it.length } / 2) + 1
     }
 }
