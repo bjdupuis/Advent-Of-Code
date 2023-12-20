@@ -1,6 +1,7 @@
 package days.aoc2023
 
 import days.Day
+import java.lang.IllegalStateException
 
 class Day19 : Day(2023, 19) {
     override fun partOne(): Any {
@@ -15,7 +16,6 @@ class Day19 : Day(2023, 19) {
     internal class Rule(val condition: (Part) -> Boolean)
     internal class Workflow(val name: String, private val rules: List<Rule>) {
         fun invoke(part: Part) {
-            print("$name -> ")
             rules.takeWhile { rule -> rule.condition.invoke(part) }
         }
     }
@@ -30,13 +30,11 @@ class Day19 : Day(2023, 19) {
                 ruleDescription.split(",").forEach { step ->
                     if (step == "R") {
                         rules.add(Rule { _ ->
-                            println("R")
                             false
                         })
                     } else if (step == "A") {
                         rules.add(Rule { part ->
                             accepted.add(part)
-                            println("A")
                             false
                         })
                     } else if (step.contains(":")) {
@@ -46,9 +44,7 @@ class Day19 : Day(2023, 19) {
                                 if (comparison == ">" && (part.map[register]!! > other) || comparison == "<" && (part.map[register]!! < other)) {
                                     if (destination == "A") {
                                         accepted.add(part)
-                                        println("A")
                                     } else if (destination == "R") {
-                                        println("R")
                                     } else {
                                         workflows[destination]!!.invoke(part)
                                     }
@@ -76,8 +72,6 @@ class Day19 : Day(2023, 19) {
                 val (register, value) = registerAndValue.split("=")
                 map[register] = value.toInt()
             }
-
-            println("Processing new one")
             workflows["in"]!!.invoke(Part(map))
         }
 
@@ -94,57 +88,71 @@ class Day19 : Day(2023, 19) {
 
         fun mergeMap(first: Map<String, Set<Int>>, second: Map<String, Set<Int>>): Map<String, Set<Int>> {
             val result = mutableMapOf<String, Set<Int>>()
-            if (first.isEmpty()) {
-                return emptyMap()
-            }
             first.keys.plus(second.keys).distinct().forEach { key ->
                 val s1 = first[key] ?: emptySet()
                 val s2 = second[key] ?: emptySet()
                 result[key] = s1 + s2
             }
+            return result
         }
 
-        fun traverseRule(name: String, potentials: Map<String, Set<Int>>): Map<String, Set<Int>> {
-            val steps = ruleMap[name]!!.split(",")
-            val currentPotentials = potentials.toMutableMap()
-            outer@for (step in steps) {
+        class Dispositions(val accepted: Map<String, Set<Int>>, val rejected: Map<String, Set<Int>>)
+
+        fun traverseRule(name: String, current: Map<String, Set<Int>>, dispositions: Dispositions): Dispositions {
+            var steps = ruleMap[name]!!.split(",").toMutableList()
+
+            print("Rule $name - ")
+
+            fun processSteps(steps: List<String>, current: Map<String, Set<Int>>, dispositions: Dispositions): Dispositions {
+                val step = steps.first()
                 if (step == "R") {
-                    return emptyMap()
+                    return Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current))
                 } else if (step == "A") {
-                    return currentPotentials
+                    return Dispositions(mergeMap(dispositions.accepted, current), dispositions.rejected)
                 } else if (step.contains(":")) {
-                    Regex("([xmas])([<>])(\\d+):(\\w+)").matchEntire(step)?.destructured?.let { (register, comparison, value, destination) ->
-                        val other = value.toInt()
+                    Regex("([xmas])([<>])(\\d+):(\\w+)").matchEntire(step)?.destructured?.let { (register, comparison, valueString, destination) ->
+                        val value = valueString.toInt()
                         if (comparison == ">") {
-                            val mySet = (currentPotentials[register] ?: (1..4000).toSet()).filter { it > other }.toSet()
+                            val mySet = (current[register] ?: (1..4000).toSet()).filter { it > value }.toSet()
+                            val otherSet = (current[register] ?: (1..4000).toSet()).filter { it <= value }.toSet()
+
                             if (destination == "A") {
-                                currentPotentials[register] = mySet
-                                break@outer;
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(mergeMap(dispositions.accepted, current.plus(register to mySet)), dispositions.rejected))
                             } else if (destination == "R") {
-                                return emptyMap()
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current.plus(register to mySet))))
                             } else {
-                                val otherSet = (potentials[register] ?: (1..4000).toSet()).filter { it <= other }.toSet()
-                                return mergeMap(traverseRule(destination, potentials.plus(register to mySet)),
+                                val positiveResult = traverseRule(destination, current.plus(register to mySet), dispositions)
+                                val negativeResult = processSteps(steps.drop(1), current.plus(register to otherSet), dispositions)
+                                return Dispositions(mergeMap(positiveResult.accepted, negativeResult.accepted), mergeMap(positiveResult.rejected, negativeResult.rejected))
                             }
                         } else {
+                            val mySet = (current[register] ?: (1..4000).toSet()).filter { it < value }.toSet()
+                            val otherSet = (current[register] ?: (1..4000).toSet()).filter { it >= value }.toSet()
+
                             if (destination == "A") {
-                                return potentials.toMutableMap().apply { this[register]!!.filter { it < other } }
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(mergeMap(dispositions.accepted, current.plus(register to mySet)), dispositions.rejected))
                             } else if (destination == "R") {
-                                return emptyMap()
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current.plus(register to mySet))))
                             } else {
-                                return mergeMap(traverseRule(destination, potentials.toMutableMap().apply { this[register]!!.filter { it < other } }), potentials)
+                                val positiveResult = traverseRule(destination, current.plus(register to mySet), dispositions)
+                                val negativeResult = processSteps(steps.drop(1), current.plus(register to otherSet), dispositions)
+                                return Dispositions(mergeMap(positiveResult.accepted, negativeResult.accepted), mergeMap(positiveResult.rejected, negativeResult.rejected))
                             }
                         }
-                    }
+                    } ?: throw IllegalStateException("how are we here?")
                 } else {
                     // it's a direct transfer
-                    return mergeMap(traverseRule(step, potentials), potentials)
+                    return traverseRule(step, current, dispositions)
                 }
             }
+
+            return processSteps(steps, current, dispositions)
         }
 
-        val result = traverseRule("in", mapOf<String,Set<Int>>())
+        val result = traverseRule("in", emptyMap(), Dispositions(emptyMap(), emptyMap()))
 
-        return result.values.fold(1L) { acc, list -> acc * list.count() }
+        val final = result.accepted.map { entry -> entry.value.filter { !result.rejected[entry.key]!!.contains(it) } }
+
+        return final.fold(1L) { acc, list -> acc * list.count() }
     }
 }

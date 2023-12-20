@@ -1,6 +1,7 @@
 package days.aoc2023
 
 import days.Day
+import util.lcm
 
 class Day20 : Day(2023, 20) {
     override fun partOne(): Any {
@@ -17,11 +18,14 @@ class Day20 : Day(2023, 20) {
 
     abstract class Module(val name: String) {
         protected val destinations = mutableListOf<Module>()
+        private val sources = mutableListOf<Module>()
         abstract fun processSignal(from: Module, pulse: Pulse): List<Pair<Pulse, Module>>
 
         fun addDestination(destination: Module) { destinations.add(destination) }
 
-        open fun addSource(source: Module) {}
+        open fun addSource(source: Module) { sources.add(source) }
+
+        fun firstSource(): Module = sources.first()
     }
 
     class Broadcaster(name: String): Module(name) {
@@ -154,22 +158,37 @@ class Day20 : Day(2023, 20) {
             }
         }
 
+        val incomingConjunction = modules["rx"]!!.firstSource()
+
         val broadcaster = modules[BROADCASTER]!!
 
         class PulseTransmission(val from: Module, val to: Module, val pulse: Pulse)
 
+        val clicksSinceLastHighFromModule = mutableMapOf<Module, Int>()
+        val cycleLengthForHighFromModule = mutableMapOf<Module, Int>()
         val pulseQueue = mutableListOf<PulseTransmission>()
-        var buttonPressedCount = 0L
+        var buttonPressedCount = 0
         while(true) {
             buttonPressedCount++
             pulseQueue.add(PulseTransmission(broadcaster, broadcaster, Pulse.LOW))
 
             while (pulseQueue.isNotEmpty()) {
                 val pulseToDeliver = pulseQueue.removeFirst()
-                val pulsesToDeliver = pulseToDeliver.to.processSignal(pulseToDeliver.from, pulseToDeliver.pulse)
-                if (pulsesToDeliver.any { it.first == Pulse.LOW && it.second.name == "rx" }) {
-                    return buttonPressedCount
+
+                // check if it's the one we care about
+                if (pulseToDeliver.pulse == Pulse.HIGH && pulseToDeliver.to == incomingConjunction && !cycleLengthForHighFromModule.containsKey(pulseToDeliver.from)) {
+                    if (clicksSinceLastHighFromModule.containsKey(pulseToDeliver.from)) {
+                        cycleLengthForHighFromModule[pulseToDeliver.from] = buttonPressedCount - clicksSinceLastHighFromModule[pulseToDeliver.from]!!
+                    } else {
+                        clicksSinceLastHighFromModule[pulseToDeliver.from] = buttonPressedCount
+                    }
+
+                    if (clicksSinceLastHighFromModule.size == cycleLengthForHighFromModule.size) {
+                        return cycleLengthForHighFromModule.values.lcm()
+                    }
                 }
+
+                val pulsesToDeliver = pulseToDeliver.to.processSignal(pulseToDeliver.from, pulseToDeliver.pulse)
                 pulsesToDeliver.forEach {
                     pulseQueue.add(PulseTransmission(pulseToDeliver.to, it.second, it.first))
                 }
