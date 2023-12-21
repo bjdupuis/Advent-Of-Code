@@ -96,21 +96,26 @@ class Day19 : Day(2023, 19) {
             return result
         }
 
-        fun traverseRule(name: String, current: Map<String, Set<Int>>, totalCombinationsSoFar: Long): Long {
+        var acceptedSoFar = 0L
+        fun traverseRule(name: String, current: Map<String, Set<Int>>) {
             var steps = ruleMap[name]!!.split(",").toMutableList()
 
-            print("Rule $name - ")
+            fun permutations(values: Collection<Set<Int>>): Long {
+                values.forEach { set ->
+                    print("(${set.min()} .. ${set.max()}) ")
+                }
+                println()
+                return values.fold(1L) { acc, ints -> acc * if (ints.isEmpty()) 1L else ints.size.toLong() }
+            }
 
-            fun permutations(values: Collection<Set<Int>>) =
-                 values.fold(1L) { acc, ints -> acc * if (ints.isEmpty()) 1L else ints.size.toLong() }
 
-
-            fun processSteps(steps: List<String>, current: Map<String, Set<Int>>, totalCombinationsSoFar: Long): Long {
+            fun processSteps(steps: List<String>, current: Map<String, Set<Int>>) {
                 val step = steps.first()
                 if (step == "R") {
-                    return totalCombinationsSoFar
+                    return
                 } else if (step == "A") {
-                    return totalCombinationsSoFar + permutations(current.values)
+                    acceptedSoFar += permutations((current.values))
+                    return
                 } else if (step.contains(":")) {
                     Regex("([xmas])([<>])(\\d+):(\\w+)").matchEntire(step)?.destructured?.let { (register, comparison, valueString, destination) ->
                         val value = valueString.toInt()
@@ -119,32 +124,38 @@ class Day19 : Day(2023, 19) {
                             val otherSet = current[register]!!.toSet().filter { it <= value }.toSet()
 
                             if (destination == "A") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar + permutations(current.plus(register to mySet).values))
+                                acceptedSoFar += permutations(current.plus(register to mySet).values)
+                                return processSteps(steps.drop(1), current.plus(register to otherSet))
                             } else if (destination == "R") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
+                                return processSteps(steps.drop(1), current.plus(register to otherSet))
                             } else {
-                                return traverseRule(destination, current.plus(register to mySet), totalCombinationsSoFar) + processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
+                                traverseRule(destination, current.plus(register to mySet))
+                                processSteps(steps.drop(1), current.plus(register to otherSet))
+                                return
                             }
                         } else {
                             val mySet = current[register]!!.toSet().filter { it < value }.toSet()
                             val otherSet = current[register]!!.toSet().filter { it >= value }.toSet()
 
                             if (destination == "A") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar + permutations(current.plus(register to mySet).values))
+                                acceptedSoFar += permutations(current.plus(register to mySet).values)
+                                return processSteps(steps.drop(1), current.plus(register to otherSet))
                             } else if (destination == "R") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
+                                return processSteps(steps.drop(1), current.plus(register to otherSet))
                             } else {
-                                return traverseRule(destination, current.plus(register to mySet), totalCombinationsSoFar) + processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
+                                traverseRule(destination, current.plus(register to mySet))
+                                processSteps(steps.drop(1), current.plus(register to otherSet))
+                                return
                             }
                         }
                     } ?: throw IllegalStateException("how are we here?")
                 } else {
                     // it's a direct transfer
-                    return traverseRule(step, current, totalCombinationsSoFar)
+                    return traverseRule(step, current)
                 }
             }
 
-            return processSteps(steps, current, totalCombinationsSoFar)
+            return processSteps(steps, current)
         }
 
         val maps = mapOf(
@@ -153,6 +164,7 @@ class Day19 : Day(2023, 19) {
             "a" to (1..4000).toSet(),
             "s" to (1..4000).toSet()
         )
-        return traverseRule("in", maps, 0L)
+        traverseRule("in", maps)
+        return acceptedSoFar
     }
 }
