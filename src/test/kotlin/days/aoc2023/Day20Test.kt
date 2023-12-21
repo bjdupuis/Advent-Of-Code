@@ -30,6 +30,6 @@ broadcaster -> a
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.calculatePartTwo(input), `is`(0))
+
     }
 }

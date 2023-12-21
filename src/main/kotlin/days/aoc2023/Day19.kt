@@ -96,63 +96,63 @@ class Day19 : Day(2023, 19) {
             return result
         }
 
-        class Dispositions(val accepted: Map<String, Set<Int>>, val rejected: Map<String, Set<Int>>)
-
-        fun traverseRule(name: String, current: Map<String, Set<Int>>, dispositions: Dispositions): Dispositions {
+        fun traverseRule(name: String, current: Map<String, Set<Int>>, totalCombinationsSoFar: Long): Long {
             var steps = ruleMap[name]!!.split(",").toMutableList()
 
             print("Rule $name - ")
 
-            fun processSteps(steps: List<String>, current: Map<String, Set<Int>>, dispositions: Dispositions): Dispositions {
+            fun permutations(values: Collection<Set<Int>>) =
+                 values.fold(1L) { acc, ints -> acc * if (ints.isEmpty()) 1L else ints.size.toLong() }
+
+
+            fun processSteps(steps: List<String>, current: Map<String, Set<Int>>, totalCombinationsSoFar: Long): Long {
                 val step = steps.first()
                 if (step == "R") {
-                    return Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current))
+                    return totalCombinationsSoFar
                 } else if (step == "A") {
-                    return Dispositions(mergeMap(dispositions.accepted, current), dispositions.rejected)
+                    return totalCombinationsSoFar + permutations(current.values)
                 } else if (step.contains(":")) {
                     Regex("([xmas])([<>])(\\d+):(\\w+)").matchEntire(step)?.destructured?.let { (register, comparison, valueString, destination) ->
                         val value = valueString.toInt()
                         if (comparison == ">") {
-                            val mySet = (current[register] ?: (1..4000).toSet()).filter { it > value }.toSet()
-                            val otherSet = (current[register] ?: (1..4000).toSet()).filter { it <= value }.toSet()
+                            val mySet = current[register]!!.toSet().filter { it > value }.toSet()
+                            val otherSet = current[register]!!.toSet().filter { it <= value }.toSet()
 
                             if (destination == "A") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(mergeMap(dispositions.accepted, current.plus(register to mySet)), dispositions.rejected))
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar + permutations(current.plus(register to mySet).values))
                             } else if (destination == "R") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current.plus(register to mySet))))
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
                             } else {
-                                val positiveResult = traverseRule(destination, current.plus(register to mySet), dispositions)
-                                val negativeResult = processSteps(steps.drop(1), current.plus(register to otherSet), dispositions)
-                                return Dispositions(mergeMap(positiveResult.accepted, negativeResult.accepted), mergeMap(positiveResult.rejected, negativeResult.rejected))
+                                return traverseRule(destination, current.plus(register to mySet), totalCombinationsSoFar) + processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
                             }
                         } else {
-                            val mySet = (current[register] ?: (1..4000).toSet()).filter { it < value }.toSet()
-                            val otherSet = (current[register] ?: (1..4000).toSet()).filter { it >= value }.toSet()
+                            val mySet = current[register]!!.toSet().filter { it < value }.toSet()
+                            val otherSet = current[register]!!.toSet().filter { it >= value }.toSet()
 
                             if (destination == "A") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(mergeMap(dispositions.accepted, current.plus(register to mySet)), dispositions.rejected))
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar + permutations(current.plus(register to mySet).values))
                             } else if (destination == "R") {
-                                return processSteps(steps.drop(1), current.plus(register to otherSet), Dispositions(dispositions.accepted, mergeMap(dispositions.rejected, current.plus(register to mySet))))
+                                return processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
                             } else {
-                                val positiveResult = traverseRule(destination, current.plus(register to mySet), dispositions)
-                                val negativeResult = processSteps(steps.drop(1), current.plus(register to otherSet), dispositions)
-                                return Dispositions(mergeMap(positiveResult.accepted, negativeResult.accepted), mergeMap(positiveResult.rejected, negativeResult.rejected))
+                                return traverseRule(destination, current.plus(register to mySet), totalCombinationsSoFar) + processSteps(steps.drop(1), current.plus(register to otherSet), totalCombinationsSoFar)
                             }
                         }
                     } ?: throw IllegalStateException("how are we here?")
                 } else {
                     // it's a direct transfer
-                    return traverseRule(step, current, dispositions)
+                    return traverseRule(step, current, totalCombinationsSoFar)
                 }
             }
 
-            return processSteps(steps, current, dispositions)
+            return processSteps(steps, current, totalCombinationsSoFar)
         }
 
-        val result = traverseRule("in", emptyMap(), Dispositions(emptyMap(), emptyMap()))
-
-        val final = result.accepted.map { entry -> entry.value.filter { !result.rejected[entry.key]!!.contains(it) } }
-
-        return final.fold(1L) { acc, list -> acc * list.count() }
+        val maps = mapOf(
+            "x" to (1..4000).toSet(),
+            "m" to (1..4000).toSet(),
+            "a" to (1..4000).toSet(),
+            "s" to (1..4000).toSet()
+        )
+        return traverseRule("in", maps, 0L)
     }
 }
