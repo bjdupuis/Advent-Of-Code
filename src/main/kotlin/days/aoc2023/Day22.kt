@@ -14,7 +14,12 @@ class Day22 : Day(2023, 22) {
         return calculatePartTwo(inputList)
     }
 
-    class Brick(private val xRange: IntProgression, private val yRange: IntProgression, var zRange: IntProgression) {
+    class Brick(private val xRange: IntProgression, private val yRange: IntProgression, var zRange: IntProgression): Cloneable {
+
+        public override fun clone(): Any {
+            return Brick(xRange, yRange, zRange)
+        }
+
         fun fall() {
             zRange = (zRange.min() - 1) .. (zRange.max() - 1)
         }
@@ -87,10 +92,12 @@ class Day22 : Day(2023, 22) {
 
         var sum = 0
 
-        bricks.forEach { brickToRemove ->
-            val bricksThatFell = letBricksFall(bricks.minus(brickToRemove))
-            println("$bricksThatFell bricks fell after removing this one")
+
+        bricks.forEachIndexed { i, _ ->
+            val newStack = bricks.map { it.clone() as Brick }
+            val bricksThatFell = letBricksFall(newStack.minus(newStack[i]))
             sum += bricksThatFell
+            println("$bricksThatFell bricks fell after removing number $i, making $sum so far")
         }
 
         return sum
