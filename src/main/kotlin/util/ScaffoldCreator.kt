@@ -34,7 +34,7 @@ object ScaffoldCreator {
 
         File("./src/main/kotlin/days/aoc$year/Day$day.kt").writeText(
             """
-package days.aoc2023
+package days.aoc$year
 
 import days.Day
 

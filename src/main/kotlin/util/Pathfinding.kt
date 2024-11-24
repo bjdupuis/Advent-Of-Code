@@ -1,6 +1,7 @@
 package util
 
 import java.util.PriorityQueue
+import kotlin.math.log
 
 class Pathfinding<VertexType> {
     fun dfs(
@@ -71,9 +72,15 @@ class Pathfinding<VertexType> {
             }
 
             visited.add(current.first)
-            neighborIterator(current.first).filter { it !in visited }.filter(neighborFilter).forEach {
-                potentialPath.addFirst(Pair(it, current.second.plus(current.first).toMutableList()))
-            }
+            neighborIterator(current.first).filter { it !in visited }.filter(neighborFilter)
+                .forEach {
+                    potentialPath.addFirst(
+                        Pair(
+                            it,
+                            current.second.plus(current.first).toMutableList()
+                        )
+                    )
+                }
         }
 
         return listOf()
@@ -112,5 +119,57 @@ class Pathfinding<VertexType> {
         return costSoFar[current!!.first]!!
     }
 
-}
+    fun findAllPaths(
+        start: VertexType,
+        neighborIterator: (VertexType) -> List<VertexType>,
+        neighborFilter: (VertexType) -> Boolean,
+        terminationCondition: (VertexType) -> Boolean
+    ): List<List<VertexType>> {
+        val completedPaths = mutableListOf<List<VertexType>>()
+        val potentialPath = ArrayDeque<Pair<VertexType, List<VertexType>>>()
+        potentialPath.addFirst(Pair(start, listOf()))
 
+        while (potentialPath.isNotEmpty()) {
+            val current = potentialPath.removeFirst()
+            if (terminationCondition(current.first)) {
+                completedPaths.add(current.second.plus(current.first))
+            } else {
+                neighborIterator(current.first).filter(neighborFilter)
+                    .filter { !current.second.contains(it) }.forEach {
+                    potentialPath.addLast(it to current.second.plus(current.first))
+                }
+            }
+        }
+
+        return completedPaths
+    }
+
+    fun longestPath(
+        start: VertexType,
+        neighborIterator: (VertexType) -> List<VertexType>,
+        neighborFilter: (VertexType) -> Boolean,
+        terminationCondition: (VertexType) -> Boolean
+    ): List<VertexType>? {
+        var longestPath: List<VertexType>? = null
+        val potentialPath = ArrayDeque<Pair<VertexType, List<VertexType>>>()
+        potentialPath.addFirst(Pair(start, listOf()))
+
+        while (potentialPath.isNotEmpty()) {
+            val current = potentialPath.removeFirst()
+            if (terminationCondition(current.first)) {
+                current.second.plus(current.first).let {
+                    if ((longestPath?.size ?: 0) < it.size) {
+                        longestPath = it
+                    }
+                }
+            } else {
+                neighborIterator(current.first).filter(neighborFilter)
+                    .filter { !current.second.contains(it) }.forEach {
+                        potentialPath.addFirst(it to current.second.plus(current.first))
+                    }
+            }
+        }
+
+        return longestPath
+    }
+}
