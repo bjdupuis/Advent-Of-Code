@@ -39,5 +39,12 @@ infix fun Int.toward(to: Int): IntProgression {
     return IntProgression.fromClosedRange(this, to, step)
 }
 
-inline fun Int.isOdd(): Boolean = this % 2 == 1
-inline fun Int.isEven(): Boolean = this % 2 == 0
+fun Int.isOdd(): Boolean = this % 2 == 1
+fun Int.isEven(): Boolean = this % 2 == 0
+
+fun <E> MutableList<E>.swapElements(first: E, second: E) {
+    val index = indexOf(first)
+    val value = this[indexOf(second)]
+    this[indexOf(second)] = this[index]
+    this[index] = value
+}

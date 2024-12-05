@@ -1,6 +1,7 @@
 package days.aoc2024
 
 import days.Day
+import util.swapElements
 
 class Day5 : Day(2024, 5) {
     override fun partOne(): Any {
@@ -70,9 +71,7 @@ class Day5 : Day(2024, 5) {
                     val intersection = rule.value.intersect(result.takeWhile { it != rule.key })
 
                     if (intersection.isNotEmpty()) {
-                        val index = result.indexOf(intersection.first())
-                        result[result.indexOf(rule.key)] = intersection.first()
-                        result[index] = rule.key
+                        result.swapElements(intersection.first(), rule.key)
                     }
                 }
             }
