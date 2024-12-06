@@ -71,7 +71,7 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
     }
 
     fun findFirst(value: Char): Point2d? {
-        iterator.forEach {
+        iterator().forEach {
             if (this[it] == value) {
                 return it
             }
@@ -79,7 +79,7 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
         return null
     }
 
-    val iterator: Iterator<Point2d> = object : Iterator<Point2d> {
+    fun iterator(): Iterator<Point2d> = object : Iterator<Point2d> {
         var currentRow = 0
         var currentColumn = 0
         override fun hasNext() =

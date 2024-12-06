@@ -59,6 +59,10 @@ data class Point2d(val x: Int, val y: Int) {
         }
     }
 
+    fun neighborInDirection(direction: Point2d.Direction): Point2d {
+        return this + direction.delta
+    }
+
     val westernNeighbor: Point2d by lazy { this.copy(x = this.x - 1) }
     val easternNeighbor: Point2d by lazy { this.copy(x = this.x + 1) }
     val northernNeighbor: Point2d by lazy { this.copy(y = this.y - 1) }
@@ -76,6 +80,22 @@ data class Point2d(val x: Int, val y: Int) {
                 South -> North
                 East -> West
                 West -> East
+            }
+
+        fun turnRight() =
+            when (this) {
+                North -> East
+                East -> South
+                South -> West
+                West -> North
+            }
+
+        fun turnLeft() =
+            when (this) {
+                North -> West
+                West -> South
+                South -> East
+                East -> North
             }
     }
 }
