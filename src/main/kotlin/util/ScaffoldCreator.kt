@@ -20,6 +20,12 @@ object ScaffoldCreator {
         if (!File("./src/main/kotlin/days/aoc$year").exists()) {
             File("./src/main/kotlin/days/aoc$year").mkdir()
         }
+        if (!File("./src/main/resources/$year").exists()) {
+            File("./src/main/resources/$year").mkdir()
+        }
+        if (!File("./src/test/kotlin/days/aoc$year/").exists()) {
+            File("./src/test/kotlin/days/aoc$year/").mkdir()
+        }
         if (File("./src/main/kotlin/days/aoc$year/Day$day.kt").exists()) {
             throw IllegalStateException("Day$day.kt already exists in aoc$year")
         }
