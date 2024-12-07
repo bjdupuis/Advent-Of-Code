@@ -44,12 +44,12 @@ class Day6 : Day(2024, 6) {
         val map = CharArray2d(input)
         val visitedSpaces = findAllVisitedSpaces(map)
 
-        return visitedSpaces.filter { isCreatesLoopIfBlocked(map, it) }.size
+        return visitedSpaces.filter { isCreatesLoopIfBlocked(map, it, map.findFirst('^')!!) }.size
     }
 
-    private fun isCreatesLoopIfBlocked(map: CharArray2d, pointToBlock: Point2d): Boolean {
+    private fun isCreatesLoopIfBlocked(map: CharArray2d, pointToBlock: Point2d, start: Point2d): Boolean {
         val visited = mutableSetOf<Pair<Point2d, Point2d.Direction>>()
-        var currentPosition = map.findFirst('^')!!
+        var currentPosition = start
         var direction = Point2d.Direction.North
         var done = false
         while (!done) {
