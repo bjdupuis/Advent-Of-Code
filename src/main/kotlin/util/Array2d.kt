@@ -79,6 +79,14 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
         return null
     }
 
+    fun find(value: Char): Sequence<Point2d> = sequence {
+        iterator().forEach {
+            if (this@CharArray2d[it] == value) {
+                yield(it)
+            }
+        }
+    }
+
     fun iterator(): Iterator<Point2d> = object : Iterator<Point2d> {
         var currentRow = 0
         var currentColumn = 0
