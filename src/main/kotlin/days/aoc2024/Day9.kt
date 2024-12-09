@@ -1,7 +1,6 @@
 package days.aoc2024
 
 import days.Day
-import util.downUntil
 
 class Day9 : Day(2024, 9) {
     override fun partOne(): Any {
@@ -72,10 +71,14 @@ class Day9 : Day(2024, 9) {
                 val file = files[index]
                 freeSpaces.first { it.size >= file.size && it.location < file.location }.let { freeSpace ->
                     files[index] = file.copy(location = freeSpace.location)
-                    freeSpaces[freeSpaces.indexOf(freeSpace)] = FreeSpace(
-                        freeSpace.size - file.size,
-                        freeSpace.location + file.size
-                    )
+                    if (freeSpace.size == file.size) {
+                        freeSpaces.remove(freeSpace)
+                    } else {
+                        freeSpaces[freeSpaces.indexOf(freeSpace)] = FreeSpace(
+                            freeSpace.size - file.size,
+                            freeSpace.location + file.size
+                        )
+                    }
                 }
             } catch (e: NoSuchElementException) {
                 // empty
