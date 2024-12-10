@@ -21,7 +21,7 @@ class PathfindingTest {
         val path = pathfinding.dfs(
             map.findFirst('S')!!,
             Point2d::neighbors,
-            { point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
+            { _, point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
         MatcherAssert.assertThat(path.last(), `is`(Point2d(9, 2)))
         MatcherAssert.assertThat(path.size, `is`(19))
     }
@@ -33,7 +33,7 @@ class PathfindingTest {
         val path = pathfinding.bfs(
             map.findFirst('S')!!,
             Point2d::neighbors,
-            { point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
+            { _, point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
         MatcherAssert.assertThat(path.last(), `is`(Point2d(9, 2)))
         MatcherAssert.assertThat(path.size, `is`(13))
     }
@@ -45,7 +45,7 @@ class PathfindingTest {
         val path = pathfinding.bfs(
             map.findFirst('S')!!,
             Point2d::allNeighbors,
-            { point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
+            { _, point -> point.isWithin(map) && map[point] != '.' }) { map[it] == 'E' }
         MatcherAssert.assertThat(path.last(), `is`(Point2d(9, 2)))
         MatcherAssert.assertThat(path.size, `is`(8))
     }
@@ -64,7 +64,7 @@ class PathfindingTest {
         val result = pathfinding.dijkstraShortestPath(
             start = Point2d(0, 0),
             neighborIterator = Point2d::neighbors,
-            neighborFilter = { it.isWithin(map) },
+            neighborFilter = { _, neighbor -> neighbor.isWithin(map) },
             edgeCost = { _, destination -> map[destination].digitToInt()},
             terminationCondition = { it == Point2d(map.maxColumnIndex, map.maxRowIndex)}
         )

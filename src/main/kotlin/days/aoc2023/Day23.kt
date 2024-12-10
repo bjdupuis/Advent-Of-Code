@@ -66,7 +66,7 @@ class Day23 : Day(2023, 23) {
                     state
                 }
             } },
-            neighborFilter = { true },
+            neighborFilter = { _, _ -> true },
             terminationCondition = { it.point.y == map.maxRowIndex })!!.size - 1
     }
 
@@ -97,7 +97,7 @@ class Day23 : Day(2023, 23) {
                     state
                 }
             } },
-            neighborFilter = { true },
+            neighborFilter = { _,_ -> true },
             terminationCondition = { it.point.y == map.maxRowIndex })!!.size - 1
     }
 }

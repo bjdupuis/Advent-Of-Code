@@ -45,7 +45,7 @@ class Day17 : Day(2023, 17) {
                     }
                 }
             },
-            neighborFilter = { it.point.isWithin(map) },
+            neighborFilter = { _, neighbor -> neighbor.point.isWithin(map) },
             edgeCost = { _, destination -> map[destination.point].digitToInt() },
             terminationCondition = { it.point == finish }
         )
@@ -85,7 +85,7 @@ class Day17 : Day(2023, 17) {
                     }
                 }
             },
-            neighborFilter = { it.point.isWithin(map) },
+            neighborFilter = { _, neighbor -> neighbor.point.isWithin(map) },
             edgeCost = { _, destination -> map[destination.point].digitToInt() },
             terminationCondition = { it.point == finish && it.consecutiveMovesInDirection >= 4 }
         )
