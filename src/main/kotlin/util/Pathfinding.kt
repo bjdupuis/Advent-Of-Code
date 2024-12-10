@@ -1,7 +1,6 @@
 package util
 
 import java.util.PriorityQueue
-import kotlin.math.log
 
 class Pathfinding<VertexType> {
 
@@ -93,7 +92,7 @@ class Pathfinding<VertexType> {
         while (frontier.isNotEmpty()) {
             current = frontier.poll()
             if (terminationCondition(current.first)) {
-                break;
+                break
             } else {
                 neighborIterator(current.first).filter { neighborFilter.filter(current.first, it) }.forEach { neighbor ->
                     val cost = costSoFar[current.first]!!.plus(edgeCost(current.first, neighbor))
