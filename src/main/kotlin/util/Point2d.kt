@@ -68,6 +68,11 @@ data class Point2d(val x: Int, val y: Int) {
     val northernNeighbor: Point2d by lazy { this.copy(y = this.y - 1) }
     val southernNeighbor: Point2d by lazy { this.copy(y = this.y + 1) }
 
+    val northWesternNeighbor: Point2d by lazy { this.copy(x = this.x - 1, y = this.y - 1)}
+    val northEasternNeighbor: Point2d by lazy { this.copy(x = this.x + 1, y = this.y - 1)}
+    val southWesternNeighbor: Point2d by lazy { this.copy(x = this.x - 1, y = this.y + 1)}
+    val southEasternNeighbor: Point2d by lazy { this.copy(x = this.x + 1, y = this.y + 1)}
+
     enum class Direction(val delta: Point2d) {
         North(Point2d(0, -1)),
         South(Point2d(0, 1)),
