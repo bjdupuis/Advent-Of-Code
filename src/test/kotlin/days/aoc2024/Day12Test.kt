@@ -42,6 +42,20 @@ EXXXX
 EEEEE
     """.trimIndent().lines()
 
+    val input5 = """
+OOOOO
+OXOXO
+OXXXO
+    """.trimIndent().lines()
+
+    val input6 = """
+AAAAAAAA
+AOOAAAOA
+AOOAAAOA
+OOOAAOAA
+    """.trimIndent().lines()
+
+
     @Test
     fun testPartOne() {
         MatcherAssert.assertThat(day.calculatePartOne(input), `is`(140))
@@ -55,5 +69,7 @@ EEEEE
         MatcherAssert.assertThat(day.calculatePartTwo(input2), `is`(436))
         MatcherAssert.assertThat(day.calculatePartTwo(input4), `is`(236))
         MatcherAssert.assertThat(day.calculatePartTwo(input3), `is`(1206))
+        MatcherAssert.assertThat(day.calculatePartTwo(input5), `is`(160))
+        MatcherAssert.assertThat(day.calculatePartTwo(input6), `is`(406))
     }
 }

@@ -130,5 +130,15 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
         return result
     }
 
+    fun print() {
+        for (y in columnIndices) {
+            val row = getRow(y)
+            for (x in row.indices) {
+                print(row.get(x))
+            }
+            println()
+        }
+    }
+
 
 }

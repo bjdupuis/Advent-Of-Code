@@ -15,6 +15,14 @@ data class Point2d(val x: Int, val y: Int) {
         return Point2d(x - other.x, y - other.y)
     }
 
+    operator fun times(other: Point2d): Point2d {
+        return Point2d(x * other.x, y * other.y)
+    }
+
+    operator fun times(mutliplier: Int): Point2d {
+        return Point2d(x * mutliplier, y * mutliplier)
+    }
+
     fun neighbors() = listOf(
         copy(x = x + 1),
         copy(x = x - 1),

@@ -33,7 +33,7 @@ class Day12 : Day(2024, 12) {
             RegionSize(
                 1,
                 current.neighbors().count { !it.isWithin(map) || map[current] != map[it] }
-            ) + regionalNeighbors.sumOf { calculateSizeOfContiguousRegion(map, it, visited) }
+            ) + regionalNeighbors.regionSumOf { calculateSizeOfContiguousRegion(map, it, visited) }
         } else {
             RegionSize(0, 0)
         }
@@ -100,22 +100,14 @@ class Day12 : Day(2024, 12) {
         }
 
         visited.add(current)
-        return corners + current.neighbors().filter { !visited.contains(it) && it.isWithin(map) && map[it] == map[current] }.intSumOf { point: Point2d -> calculateCornersForRegion(map, point, visited) }
+        return corners + current.neighbors().filter { !visited.contains(it) && it.isWithin(map) && map[it] == map[current] }.sumOf { point: Point2d -> calculateCornersForRegion(map, point, visited) }
     }
 
 }
 
 
-private inline fun Iterable<Point2d>.sumOf(selector: (Point2d) -> Day12.RegionSize): Day12.RegionSize {
+private inline fun Iterable<Point2d>.regionSumOf(selector: (Point2d) -> Day12.RegionSize): Day12.RegionSize {
     var sum = Day12.RegionSize(0, 0)
-    for (element in this) {
-        sum += selector(element)
-    }
-    return sum
-}
-
-private inline fun Iterable<Point2d>.intSumOf(selector: (Point2d) -> Int): Int {
-    var sum = 0
     for (element in this) {
         sum += selector(element)
     }
