@@ -23,7 +23,7 @@ class Day17 : Day(2023, 17) {
 
         val startState = State(start, Point2d.Direction.East, 1)
 
-       return Pathfinding<State>().dijkstraShortestPath(
+       return Pathfinding<State>().dijkstraShortestPathCost(
             start = startState,
             neighborIterator = { current ->
                 current.point.neighbors().filter {
@@ -61,7 +61,7 @@ class Day17 : Day(2023, 17) {
 
         val startState = State(start, Point2d.Direction.East, 1)
 
-        return Pathfinding<State>().dijkstraShortestPath(
+        return Pathfinding<State>().dijkstraShortestPathCost(
             start = startState,
             neighborIterator = { current ->
                 current.point.neighbors().filter {

@@ -1,8 +1,6 @@
 package util
 
-import java.nio.file.Path
 import java.util.PriorityQueue
-import kotlin.math.max
 
 class Pathfinding<VertexType> {
 
@@ -77,7 +75,7 @@ class Pathfinding<VertexType> {
         return listOf()
     }
 
-    fun dijkstraShortestPath(
+    fun dijkstraShortestPathCost(
         start: VertexType,
         neighborIterator: (VertexType) -> List<VertexType>,
         neighborFilter: NeighborFilter<VertexType>,
@@ -109,6 +107,85 @@ class Pathfinding<VertexType> {
         return if (success) costSoFar[current!!.first]!! else Int.MAX_VALUE
     }
 
+    internal data class PathInfo<E>(val vertex: E, val list: List<E>, val costSoFar: Int)
+
+    fun dijkstraShortestPath(
+        start: VertexType,
+        neighborIterator: (VertexType) -> List<VertexType>,
+        neighborFilter: NeighborFilter<VertexType>,
+        edgeCost: (VertexType, VertexType) -> Int,
+        terminationCondition: (VertexType) -> Boolean
+    ): Pair<List<VertexType>, Int> {
+        var success = false
+        val frontier = PriorityQueue(compareBy<PathInfo<VertexType>> { it.costSoFar })
+        val costSoFar = mutableMapOf<VertexType, Int>()
+        costSoFar[start] = 0
+        frontier.add(PathInfo(start, listOf(start), 0))
+        var current: PathInfo<VertexType>? = null
+        while (frontier.isNotEmpty()) {
+            current = frontier.poll()
+            if (terminationCondition(current.vertex)) {
+                success = true
+                break
+            } else {
+                neighborIterator(current.vertex).filter { neighborFilter.filter(current.vertex, it) }.forEach { neighbor ->
+                    val cost = costSoFar[current.vertex]!!.plus(edgeCost(current.vertex, neighbor))
+                    if (!costSoFar.containsKey(neighbor) || cost < costSoFar[neighbor]!!) {
+                        costSoFar[neighbor] = cost
+                        frontier.add(PathInfo(neighbor, current.list.plus(neighbor), cost))
+                    }
+                }
+            }
+        }
+
+        return if (success) current!!.list to costSoFar[current.vertex]!!  else listOf<VertexType>() to Int.MAX_VALUE
+    }
+
+    fun dijkstraShortestPaths(
+        start: VertexType,
+        neighborIterator: (VertexType) -> List<VertexType>,
+        neighborFilter: NeighborFilter<VertexType>,
+        edgeCost: (VertexType, VertexType) -> Int,
+        terminationCondition: (VertexType) -> Boolean
+    ): Pair<List<VertexType>, Int> {
+        var success = false
+        val frontier = PriorityQueue(compareBy<PathInfo<VertexType>> { it.costSoFar })
+        val predecessors = mutableMapOf<VertexType, Set<VertexType>>()
+        val costSoFar = mutableMapOf<VertexType, Int>()
+        costSoFar[start] = 0
+        frontier.add(PathInfo(start, listOf(start), 0))
+        var current: PathInfo<VertexType>? = null
+        while (frontier.isNotEmpty()) {
+            current = frontier.poll()
+            if (terminationCondition(current.vertex)) {
+                success = true
+                break
+            } else {
+                neighborIterator(current.vertex).filter { neighborFilter.filter(current.vertex, it) }.forEach { neighbor ->
+                    val cost = costSoFar[current.vertex]!!.plus(edgeCost(current.vertex, neighbor))
+                    if (!costSoFar.containsKey(neighbor) || cost <= costSoFar[neighbor]!!) {
+                        costSoFar[neighbor] = cost
+                        frontier.add(PathInfo(neighbor, current.list.plus(neighbor), cost))
+                        predecessors[neighbor] = predecessors.getOrDefault(neighbor, setOf()).plus(current.vertex)
+                    }
+                }
+            }
+        }
+
+        val set = mutableSetOf<VertexType>()
+        val toProcess = mutableListOf<VertexType>()
+        toProcess.add(current!!.vertex)
+        while (toProcess.isNotEmpty()) {
+            val processing = toProcess.removeFirst()
+            set.add(processing)
+            predecessors[processing]?.let {
+                toProcess.addAll(it)
+            }
+        }
+
+        return if (success) set.toList() to costSoFar[current.vertex]!!  else listOf<VertexType>() to Int.MAX_VALUE
+    }
+
     fun findAllPaths(
         start: VertexType,
         neighborIterator: (VertexType) -> List<VertexType>,
@@ -133,136 +210,6 @@ class Pathfinding<VertexType> {
 
         return completedPaths
     }
-
-    internal data class PathInfo<E>(val vertex: E, val list: List<E>, val costSoFar: Int)
-
-    fun findAllPathsDfs(
-        start: VertexType,
-        neighborIterator: (VertexType) -> List<VertexType>,
-        neighborFilter: NeighborFilter<VertexType>,
-        edgeCost: (VertexType, VertexType) -> Int,
-        maxCost: Int,
-        terminationCondition: (VertexType) -> Boolean
-    ): List<List<VertexType>> {
-        val completedPaths = mutableListOf<List<VertexType>>()
-        val potentialPath = ArrayDeque<PathInfo<VertexType>>()
-        potentialPath.addFirst(PathInfo(start, listOf(), 0))
-
-        while (potentialPath.isNotEmpty()) {
-            val current = potentialPath.removeFirst()
-            if (terminationCondition(current.vertex)) {
-                completedPaths.add(current.list.plus(current.vertex))
-            } else {
-                neighborIterator(current.vertex).filter { neighborFilter.filter(current.vertex, it) }
-                    .filter { !current.list.contains(it) }.forEach {
-                        val cost = edgeCost(current.vertex, it)
-                        if (current.costSoFar + cost <= maxCost) {
-                            potentialPath.addFirst(
-                                PathInfo(
-                                    it,
-                                    current.list.plus(current.vertex),
-                                    current.costSoFar + cost
-                                )
-                            )
-                        }
-                    }
-            }
-        }
-
-        return completedPaths
-    }
-
-    fun findAllPathsDfsRecursive(
-        current: VertexType,
-        neighborIterator: (VertexType) -> List<VertexType>,
-        neighborFilter: NeighborFilter<VertexType>,
-        edgeCost: (VertexType, VertexType) -> Int,
-        maxCost: Int,
-        terminationCondition: (VertexType) -> Boolean
-    ): List<List<VertexType>> {
-        return recurseDfs(
-            PathInfo(current, listOf(current), 0),
-            neighborIterator,
-            neighborFilter,
-            edgeCost,
-            maxCost,
-            terminationCondition,
-            listOf()
-        )
-    }
-
-    private fun recurseDfs(
-        current: PathInfo<VertexType>,
-        neighborIterator: (VertexType) -> List<VertexType>,
-        neighborFilter: NeighborFilter<VertexType>,
-        edgeCost: (VertexType, VertexType) -> Int,
-        maxCost: Int,
-        terminationCondition: (VertexType) -> Boolean,
-        completedPaths: List<List<VertexType>>
-    ): List<List<VertexType>> {
-        if (terminationCondition(current.vertex)) {
-            return completedPaths.plus(listOf(current.list.plus(current.vertex)))
-        } else {
-            val neighbors = neighborIterator(current.vertex).filter { neighborFilter.filter(current.vertex, it) }.filter { !current.list.contains(it) }
-            if (neighbors.isEmpty()) {
-                return completedPaths
-            } else {
-                return neighbors.map {
-                    val cost = edgeCost(current.vertex, it)
-                    return if (current.costSoFar + cost <= maxCost) {
-                        recurseDfs(
-                            PathInfo(it, current.list.plus(it), current.costSoFar + cost),
-                            neighborIterator,
-                            neighborFilter,
-                            edgeCost,
-                            maxCost,
-                            terminationCondition,
-                            completedPaths
-                        )
-                    } else {
-                        completedPaths
-                    }
-                }
-            }
-        }
-    }
-
-    fun findAllPathsBfs(
-        start: VertexType,
-        neighborIterator: (VertexType) -> List<VertexType>,
-        neighborFilter: NeighborFilter<VertexType>,
-        edgeCost: (VertexType, VertexType) -> Int,
-        maxCost: Int,
-        terminationCondition: (VertexType) -> Boolean
-    ): List<List<VertexType>> {
-        val completedPaths = mutableListOf<List<VertexType>>()
-        val potentialPath = ArrayDeque<PathInfo<VertexType>>()
-        potentialPath.addFirst(PathInfo(start, listOf(), 0))
-
-        while (potentialPath.isNotEmpty()) {
-            val current = potentialPath.removeLast()
-            if (terminationCondition(current.vertex)) {
-                completedPaths.add(current.list.plus(current.vertex))
-            } else {
-                neighborIterator(current.vertex).filter { neighborFilter.filter(current.vertex, it) }
-                    .filter { !current.list.contains(it) }.forEach {
-                        val cost = edgeCost(current.vertex, it)
-                        if (current.costSoFar + cost <= maxCost) {
-                            potentialPath.addFirst(
-                                PathInfo(
-                                    it,
-                                    current.list.plus(current.vertex),
-                                    current.costSoFar + cost
-                                )
-                            )
-                        }
-                    }
-            }
-        }
-
-        return completedPaths
-    }
-
 
     fun longestPath(
         start: VertexType,

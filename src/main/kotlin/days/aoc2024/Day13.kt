@@ -4,11 +4,6 @@ import days.Day
 import util.Pathfinding
 import util.Point2d
 import util.Point2dl
-import java.util.IllegalFormatException
-import javax.crypto.Mac
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 
 class Day13 : Day(2024, 13) {
     override fun partOne(): Any {
@@ -37,7 +32,7 @@ class Day13 : Day(2024, 13) {
         }
 
         val fewestTokens = machines.map { machine ->
-            Pathfinding<Point2d>().dijkstraShortestPath(
+            Pathfinding<Point2d>().dijkstraShortestPathCost(
                 Point2d(0, 0),
                 { current -> listOf(current + machine.buttonADelta, current + machine.buttonBDelta) },
                 { _, neighbor -> neighbor.x <= machine.prizeLocation.x && neighbor.y <= machine.prizeLocation.y },
