@@ -40,7 +40,7 @@ class Day16 : Day(2024, 16) {
     fun calculatePartTwo(input: List<String>): Int {
         val map = CharArray2d(input)
         val pathfinding = Pathfinding<PointWithBearing>()
-        val paths = pathfinding.dijkstraShortestPaths(
+        val paths = pathfinding.dijkstraShortestPathAllVertices(
             PointWithBearing(map.findFirst('S')!!, Point2d.Direction.East),
             { current -> current.position.neighbors().map { PointWithBearing(it, current.position.directionTo(it)!!) } },
             { current, neighbor ->

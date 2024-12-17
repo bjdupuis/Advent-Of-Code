@@ -141,7 +141,7 @@ class Pathfinding<VertexType> {
         return if (success) current!!.list to costSoFar[current.vertex]!!  else listOf<VertexType>() to Int.MAX_VALUE
     }
 
-    fun dijkstraShortestPaths(
+    fun dijkstraShortestPathAllVertices(
         start: VertexType,
         neighborIterator: (VertexType) -> List<VertexType>,
         neighborFilter: NeighborFilter<VertexType>,
