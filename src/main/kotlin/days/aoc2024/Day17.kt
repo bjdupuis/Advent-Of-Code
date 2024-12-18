@@ -57,25 +57,22 @@ Program: 0,1,5,4,3,0
             else -> throw IllegalStateException("Opcode not recognized: $opcode")
         }
     }
-/*
-Program: 2,4, 1,7, 7,5, 0,3, 4,4, 1,7, 5,5, 3,0
 
-B = A % 8
-B = B XOR 7
-C = A / 2 ^ B
-A = A / 8
-B = B XOR C
-OUTPUT B
-IF A != 0 GOTO 1
+    /*
+    Program: 2,4, 1,7, 7,5, 0,3, 4,4, 1,7, 5,5, 3,0
 
-output = ((A % 8) xor 7) XOR (A / 2 ^ ((A % 8) xor 7)))
-C = A / 2 ^ B
-output = (d XOR 7) XOR (A / 2 ^ (d XOR 7))
- */
-fun calculatePartTwo(input: List<String>): Long {
-    val program = input[4].split(" ").last().split(",")
-    return findSolutionForOutput(1, program, program.lastIndex)
-}
+    B = A % 8
+    B = B XOR 7
+    C = A / 2 ^ B
+    A = A / 8
+    B = B XOR C
+    OUTPUT B
+    IF A != 0 GOTO 1
+    */
+    fun calculatePartTwo(input: List<String>): Long {
+        val program = input[4].split(" ").last().split(",")
+        return findSolutionForOutput(1, program, program.lastIndex)
+    }
 
     private fun findSolutionForOutput(a: Long, program: List<String>, outputIndex: Int): Long {
         val registers = mutableMapOf<Char, Long>()
