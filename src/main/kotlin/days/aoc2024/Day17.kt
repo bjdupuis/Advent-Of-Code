@@ -1,8 +1,6 @@
 package days.aoc2024
 
 import days.Day
-import kotlin.math.exp
-import kotlin.math.pow
 
 class Day17 : Day(2024, 17) {
     override fun partOne(): Any {
@@ -74,53 +72,38 @@ output = ((A % 8) xor 7) XOR (A / 2 ^ ((A % 8) xor 7)))
 C = A / 2 ^ B
 output = (d XOR 7) XOR (A / 2 ^ (d XOR 7))
  */
-    fun calculatePartTwo(input: List<String>): Long {
-        var currentRegisterA = 1L
+fun calculatePartTwo(input: List<String>): Long {
+    val program = input[4].split(" ").last().split(",")
+    return findSolutionForOutput(1, program, program.lastIndex)
+}
+
+    private fun findSolutionForOutput(a: Long, program: List<String>, outputIndex: Int): Long {
         val registers = mutableMapOf<Char, Long>()
-        registers['A'] = currentRegisterA
-        registers['B'] = 0L
-        registers['C'] = 0L
 
-        val program = input[4].split(" ").last().split(",")
-        outer@ for (expected in program.reversed()) {
-            while (true) {
-                registers['A'] = currentRegisterA
-                registers['B'] = 0
-                registers['C'] = 0
-                if (runProgram(registers, program) == expected) {
-                    currentRegisterA *= 8
-                    continue@outer
+        for (i in 0..63) {
+            registers['A'] = a + i
+            registers['B'] = 0L
+            registers['C'] = 0L
+            if (runProgram(registers, program) == program.drop(outputIndex)
+                    .joinToString(",")
+            ) {
+                if (outputIndex == 0) {
+                    return a
                 } else {
-                    currentRegisterA++
+                    val solution =
+                        findSolutionForOutput((a + i) * 8L, program, outputIndex - 1)
+                    if (solution != Long.MAX_VALUE) {
+                        return solution
+                    }
                 }
             }
+
         }
-        return currentRegisterA
+
+        return Long.MAX_VALUE
     }
 
-    private fun runProgram(registers: MutableMap<Char,Long>, program: List<String>): String? {
-        var pc = 0
-
-        while(pc <= program.lastIndex) {
-            when (program[pc]) {
-                "0" -> registers['A'] = registers['A']!! / 2.0.pow(operandOf(program[pc + 1], registers).toDouble()).toInt()
-                "1" -> registers['B'] = registers['B']!! xor program[pc + 1].toLong()
-                "2" -> registers['B'] = operandOf(program[pc + 1], registers).mod(8L)
-                "3" -> if (registers['A'] != 0L) pc = program[pc + 1].toInt() - 2
-                "4" -> registers['B'] = registers['B']!! xor registers['C']!!
-                "5" -> {
-                    return operandOf(program[pc + 1], registers).mod(8).toString()
-                }
-                "6" -> registers['B'] = registers['A']!! / 2.0.pow(operandOf(program[pc + 1], registers).toDouble()).toInt()
-                "7" -> registers['C'] = registers['A']!! / 2.0.pow(operandOf(program[pc + 1], registers).toDouble()).toInt()
-            }
-
-            pc += 2
-        }
-        return null
-    }
-
-    fun runCompleteProgram(registers: MutableMap<Char, Long>, program: List<String>): String {
+    fun runProgram(registers: MutableMap<Char, Long>, program: List<String>): String {
         var pc = 0
         val output = mutableListOf<String>()
         while(pc <= program.lastIndex) {

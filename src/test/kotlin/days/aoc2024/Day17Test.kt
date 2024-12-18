@@ -30,7 +30,7 @@ Program: 0,3,5,4,3,0
     @Test
     fun testPartTwo() {
         println(
-        day.runCompleteProgram(mutableMapOf(
+        day.runProgram(mutableMapOf(
             'A' to 15401768L,
             'B' to 0L,
             'C' to 0L
