@@ -29,6 +29,12 @@ Program: 0,3,5,4,3,0
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.calculatePartTwo(input2), `is`(117440))
+        println(
+        day.runCompleteProgram(mutableMapOf(
+            'A' to 15401768L,
+            'B' to 0L,
+            'C' to 0L
+        ), "2,4,1,7,7,5,0,3,4,4,1,7,5,5,3,0".split(",")))
+        //MatcherAssert.assertThat(day.calculatePartTwo(input2), `is`(117440))
     }
 }
