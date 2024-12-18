@@ -81,20 +81,17 @@ Program: 0,1,5,4,3,0
             registers['A'] = a + i
             registers['B'] = 0L
             registers['C'] = 0L
-            if (runProgram(registers, program) == program.drop(outputIndex)
-                    .joinToString(",")
+            if (runProgram(registers, program) == program.drop(outputIndex).joinToString(",")
             ) {
                 if (outputIndex == 0) {
                     return a
                 } else {
-                    val solution =
-                        findSolutionForOutput((a + i) * 8L, program, outputIndex - 1)
+                    val solution = findSolutionForOutput((a + i) * 8L, program, outputIndex - 1)
                     if (solution != Long.MAX_VALUE) {
                         return solution
                     }
                 }
             }
-
         }
 
         return Long.MAX_VALUE
@@ -119,6 +116,5 @@ Program: 0,1,5,4,3,0
         }
 
         return output.joinToString(",")
-
     }
 }
