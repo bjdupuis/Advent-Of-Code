@@ -35,11 +35,7 @@ class Day19 : Day(2024, 19) {
                 val matchingTowels = towelsAvailable.filter { towel -> design.startsWith(towel) }
                 if (matchingTowels.isNotEmpty()) {
                     matchingTowels.sumOf {
-                        possibleDesignCount(
-                            design.drop(it.length),
-                            towelsAvailable,
-                            cache
-                        )
+                        possibleDesignCount(design.drop(it.length), towelsAvailable, cache)
                     }
                 } else {
                     0
