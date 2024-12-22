@@ -11,7 +11,7 @@ class Day20 : Day(2024, 20) {
     }
 
     override fun partTwo(): Any {
-        return calculatePartTwo(inputList)
+        return calculatePartTwo(inputList, 100)
     }
 
     fun calculatePartOne(input: List<String>, minCheatTime: Int): Int {
