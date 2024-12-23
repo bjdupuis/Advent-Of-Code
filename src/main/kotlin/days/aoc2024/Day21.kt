@@ -66,7 +66,7 @@ class Day21 : Day(2024, 21) {
                         Pair(start,' '),
                         { current -> directionalMoves[current.first]!! },
                         { _, _ -> true },
-                        { _, _ -> 1 },
+                        { current, neighbor -> if (current.second == neighbor.second) 1 else 100 },
                         { current -> current.first == end }
                     )
                     map[end] = path.first.drop(1).map { it.second }
@@ -144,7 +144,7 @@ class Day21 : Day(2024, 21) {
                         Pair(start,' '),
                         { current -> numericMoves[current.first]!! },
                         { _, _ -> true },
-                        { _, _ -> 1 },
+                        { current, neighbor -> if (current.second == neighbor.second) 1 else 100 },
                         { current -> current.first == end }
                     )
                     map[end] = path.first.drop(1).map { it.second }
@@ -159,16 +159,13 @@ class Day21 : Day(2024, 21) {
         val numericKeypadEntryRobot = NumericKeypadEntryRobot()
         val directionalKeypadRobot1 = DirectionalKeypadEntryRobot()
         val directionalKeypadRobot2 = DirectionalKeypadEntryRobot()
-        val directionalKeypadEntry = DirectionalKeypadEntryRobot()
 
         return input.sumOf { line ->
             var totalEntry = ""
             line.map { keypadEntry ->
                 numericKeypadEntryRobot.shortestPathsToKey[numericKeypadEntryRobot.currentLocation]!![keypadEntry]!!.map { robot1Entry ->
                     directionalKeypadRobot1.shortestPathsToKey[directionalKeypadRobot1.currentLocation]!![robot1Entry]!!.map { robot2Entry ->
-                        directionalKeypadRobot2.shortestPathsToKey[directionalKeypadRobot2.currentLocation]!![robot2Entry]!!.map { entry ->
-                            totalEntry += directionalKeypadEntry.shortestPathsToKey[directionalKeypadEntry.currentLocation]!![entry]!!.joinToString("")
-                        }
+                        totalEntry += directionalKeypadRobot2.shortestPathsToKey[directionalKeypadRobot2.currentLocation]!![robot2Entry]!!.joinToString("") + 'A'
                         directionalKeypadRobot2.currentLocation = robot2Entry
                     }
                     directionalKeypadRobot1.currentLocation = robot1Entry
