@@ -1,6 +1,8 @@
 package days.aoc2024
 
 import days.Day
+import kotlin.math.max
+import kotlin.math.min
 
 class Day24 : Day(2024, 24) {
     override fun partOne(): Any {
@@ -19,6 +21,10 @@ class Day24 : Day(2024, 24) {
         override fun output(): Int {
             return value
         }
+
+        override fun toString(): String {
+            return name
+        }
     }
 
     class VariablePin(name: String, pins: Map<String, Pin>): Pin(name, pins) {
@@ -30,6 +36,8 @@ class Day24 : Day(2024, 24) {
 
     abstract class LogicGateOutput(name: String, val input1Name: String, val input2Name: String, pins: Map<String, Pin>): Pin(name, pins) {
         var value: Int? = null
+        var alias: String? = null
+            get() = field ?: name
 
         fun input1() = pins[input1Name]!!
         fun input2() = pins[input2Name]!!
@@ -43,6 +51,9 @@ class Day24 : Day(2024, 24) {
         }
 
         abstract fun copy(name: String): LogicGateOutput
+        override fun toString(): String {
+            return "$alias"
+        }
     }
 
     class OrGate(name: String, input1Name: String, input2Name: String, pins: Map<String, Pin>): LogicGateOutput(name, input1Name, input2Name, pins) {
@@ -56,6 +67,10 @@ class Day24 : Day(2024, 24) {
 
         override fun copy(name: String): LogicGateOutput {
             return OrGate(name, input1Name, input2Name, pins)
+        }
+
+        override fun toString(): String {
+            return "$input1Name OR $input2Name -> $alias"
         }
     }
 
@@ -71,6 +86,10 @@ class Day24 : Day(2024, 24) {
         override fun copy(name: String): LogicGateOutput {
             return XorGate(name, input1Name, input2Name, pins)
         }
+
+        override fun toString(): String {
+            return "${input1()} XOR ${input2()} -> ${alias ?: name}"
+        }
     }
 
     class AndGate(name: String, input1Name: String, input2Name: String, pins: Map<String, Pin>): LogicGateOutput(name, input1Name, input2Name, pins) {
@@ -84,6 +103,10 @@ class Day24 : Day(2024, 24) {
 
         override fun copy(name: String): LogicGateOutput {
             return AndGate(name, input1Name, input2Name, pins)
+        }
+
+        override fun toString(): String {
+            return "$input1Name AND $input2Name -> ${alias ?: name}"
         }
     }
 
@@ -116,25 +139,126 @@ class Day24 : Day(2024, 24) {
         }
     }
 
-    fun calculatePartTwo(input: List<String>): String {
-        val pins = mutableMapOf<String,Pin>()
-        input.takeWhile { it.isNotEmpty() }.forEach {
-            Regex("([xy])(\\d+): ([01])").matchEntire(it)?.destructured?.let { (xOrY, pin, _) ->
-                pins["${xOrY}${pin}"] = VariablePin("${xOrY}${pin}", pins)
-            }
-        }
-        input.dropWhile { it.isNotEmpty() }.drop(1).forEach {
-            Regex("(.*) (OR|AND|XOR) (.*) -> (.*)").matchEntire(it)?.destructured?.let { (i1, op, i2, out) ->
-                pins[out] = when (op) {
-                    "OR" -> OrGate(out, i1, i2, pins)
-                    "XOR" -> XorGate(out, i1, i2, pins)
-                    "AND" -> AndGate(out, i1, i2, pins)
-                    else -> throw IllegalStateException("Unrecognized op: $op")
+    class SimplePin(val name: String)
+
+    class Gate(val in1: String, val in2: String, var output: String, val operation: String) {
+        private var alias: String? = null
+        fun aliasOf(gates: List<Gate>): String {
+            if (alias != null) {
+                return alias as String
+            } else {
+                val p1 = inputGate1(gates)
+                val p2 = inputGate2(gates)
+
+                alias = if (operation == "XOR" && in1.drop(1) == in2.drop(1)) {
+                    "XOR${in1.drop(1)}"
+                } else if (operation == "AND" && in1.drop(1) == in2.drop(1)) {
+                    if (in1.drop(1) == "00") "CARRY00" else "AND${in1.drop(1)}"
+                } else if (operation == "AND" &&
+                    p2.matches(Regex("XOR${p2.dropWhile { !it.isDigit() }}")) &&
+                    p1.matches(Regex("CARRY${(p2.dropWhile { !it.isDigit() }.toInt() - 1).toString().padStart(2, '0')}"))
+                ) {
+                    "CARRY_INTERMEDIATE${p2.dropWhile { !it.isDigit() }}"
+                } else if (operation == "OR" &&
+                    p1.matches(Regex("AND${p1.dropWhile { !it.isDigit() }}")) &&
+                    p2.matches(Regex("CARRY_INTERMEDIATE${p1.dropWhile { !it.isDigit() }}"))
+                ) {
+                    "CARRY${p1.dropWhile { !it.isDigit() }}"
+                } else {
+                    output
                 }
+                return alias as String
             }
         }
 
+        fun print(gates: List<Gate>) {
+            val p1 = inputGate1(gates)
+            val p2 = inputGate2(gates)
+
+            println("$p1 $operation $p2 -> ${aliasOf(gates)}")
+        }
+
+        fun inputGate1(gates: List<Gate>): String {
+            val p1 = if (in1.startsWith("x") || in1.startsWith("y"))
+                in1
+            else
+                gates.first { it.output == in1 }.aliasOf(gates)
+            val p2 = if (in2.startsWith("x") || in2.startsWith("y"))
+                in2
+            else
+                gates.first { it.output == in2 }.aliasOf(gates)
+            return if (p1 < p2) p1 else p2
+        }
+
+        fun inputGate2(gates: List<Gate>): String {
+            val p1 = if (in1.startsWith("x") || in1.startsWith("y"))
+                in1
+            else
+                gates.first { it.output == in1 }.aliasOf(gates)
+            val p2 = if (in2.startsWith("x") || in2.startsWith("y"))
+                in2
+            else
+                gates.first { it.output == in2 }.aliasOf(gates)
+            return if (p1 > p2) p1 else p2
+        }
+    }
+
+    fun calculatePartTwo(input: List<String>): String {
+        val pins = mutableListOf<String>()
+        input.takeWhile { it.isNotEmpty() }.forEach {
+            Regex("([xy])(\\d+): ([01])").matchEntire(it)?.destructured?.let { (xOrY, pin, _) ->
+                pins.add("${xOrY}${pin}")
+            }
+        }
+        val gates = mutableListOf<Gate>()
+
+        // yes, these are found by manual inspection looking for incorrect patterns for a 2-bit adder with carry 😬
+        val swaps = listOf(
+            listOf("ksv", "z06"),
+            listOf("kbs", "nbd"),
+            listOf("tqq", "z20"),
+            listOf("ckb", "z39")
+        )
+        input.dropWhile { it.isNotEmpty() }.drop(1).forEach {
+            Regex("(.*) (OR|AND|XOR) (.*) -> (.*)").matchEntire(it)?.destructured?.let { (i1, op, i2, out) ->
+                var output = out
+                for (swap in swaps) {
+                    if (swap.contains(out)) {
+                        output = swap.first { it != out }
+                        break
+                    }
+                }
+                gates.add(Gate(i1, i2, output, op))
+            }
+        }
+
+        val toBePrinted = mutableSetOf<Gate>()
+        toBePrinted.addAll(gates)
+        for (i in 0..44) {
+            for (gate in gates) {
+                if (toBePrinted.contains(gate)) {
+                    val gate1 = gate.inputGate1(gates)
+                    val gate1Number = if (gate1.matches(Regex(".*\\d\\d"))) gate1.dropWhile { !it.isDigit() }.toInt() else Int.MIN_VALUE
+                    val gate2 = gate.inputGate2(gates)
+                    val gate2Number = if (gate2.matches(Regex(".*\\d\\d"))) gate2.dropWhile { !it.isDigit() }.toInt() else Int.MIN_VALUE
+                    val max = max(gate1Number, gate2Number)
+                    val gateNumber = if (gate.aliasOf(gates).matches(Regex(".*\\d\\d"))) gate.aliasOf(gates).dropWhile { !it.isDigit() }.toInt() else Int.MAX_VALUE
+                    if (max == i || gateNumber == i) {
+                        gate.print(gates)
+                        toBePrinted.remove(gate)
+                    }
+                }
+            }
+            println("")
+        }
+
+        println("=== not printed ===")
+        for(gate in toBePrinted) {
+            gate.print(gates)
+        }
+
         val swapped = mutableListOf<String>()
+        swapped.addAll(swaps.flatten())
         /*
         val xInputPins = pins.values.filterIsInstance<VariablePin>().filter { it.name.startsWith("x") }
         for (x in xInputPins) {
@@ -175,8 +299,6 @@ class Day24 : Day(2024, 24) {
             }
         }
 
-
-         */
         // find all output pins that aren't the result of an XOR
         swapped.addAll(pins.filter { it.key != "z45" && it.key.startsWith("z") }.values.filter { it is OrGate || it is AndGate }.map { it.name })
 
@@ -192,6 +314,8 @@ class Day24 : Day(2024, 24) {
             (or.input1() is AndGate && or.input2() is AndGate)
         }.values.map { it.name })
 
+
+         */
         return swapped.sorted().joinToString(",")
     }
 
