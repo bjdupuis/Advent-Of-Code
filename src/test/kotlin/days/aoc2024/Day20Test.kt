@@ -31,6 +31,7 @@ class Day20Test {
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.calculatePartTwo(input, 50), `is`(32))
+        MatcherAssert.assertThat(day.calculatePartTwo(input, 76), `is`(3))
+        MatcherAssert.assertThat(day.calculatePartTwo(input, 74), `is`(4))
     }
 }

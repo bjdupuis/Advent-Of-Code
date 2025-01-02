@@ -43,6 +43,26 @@ class Day20 : Day(2024, 20) {
     }
 
     fun calculatePartTwo(input: List<String>, minCheatTime: Int): Int {
-        return 0
+        val map = CharArray2d(input)
+        val pathfinding = Pathfinding<Point2d>()
+        val path = pathfinding.dijkstraShortestPath(
+            map.findFirst('S')!!,
+            { current -> current.neighbors() },
+            { _, neighbor -> neighbor.isWithin(map) && map[neighbor] != '#' },
+            { _, _ -> 1 },
+            { current -> map[current] == 'E'}
+        )
+
+        var validCheats = 0
+        path.first.forEachIndexed { index, origin ->
+            for (i in index + minCheatTime .. path.first.lastIndex) {
+                val other = path.first[i]
+                if (origin.distanceTo(other) <= 20 && ((i - index) - origin.distanceTo(other) >= minCheatTime)) {
+                    validCheats++
+                }
+            }
+        }
+
+        return validCheats
     }
 }

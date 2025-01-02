@@ -2,6 +2,7 @@ package days.aoc2024
 
 import days.Day
 import util.Pathfinding
+import util.Pathfinding.NeighborFilter
 
 class Day21 : Day(2024, 21) {
     override fun partOne(): Any {
@@ -32,24 +33,24 @@ class Day21 : Day(2024, 21) {
 
     abstract class KeypadEntryRobot {
         private var currentLocation = 'A'
-        private val shortestPathsToKey: Map<Char, Map<Char, List<Char>>>
+        private val pathsToKey: Map<Char, Map<Char, List<List<Char>>>>
 
-        fun moveArmTo(destination: Char): List<Char> {
-            val moves = (shortestPathsToKey[currentLocation]!![destination] ?: emptyList()) + 'A'
+        fun pathsTo(destination: Char): List<List<Char>> {
+            val moves = (pathsToKey[currentLocation]!![destination] ?: emptyList())
             currentLocation = destination
             return moves
         }
 
         init {
-            shortestPathsToKey = initializePaths()
+            pathsToKey = initializePaths()
         }
 
-        abstract fun initializePaths(): Map<Char, Map<Char, List<Char>>>
+        abstract fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>>
     }
 
     class DirectionalKeypadEntryRobot : KeypadEntryRobot() {
 
-        override fun initializePaths(): Map<Char, Map<Char, List<Char>>> {
+        override fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>> {
             val directionalMoves = mapOf(
                 'A' to listOf(
                     '^' to '<',
@@ -72,27 +73,18 @@ class Day21 : Day(2024, 21) {
                     'v' to '<'
                 )
             )
-            val paths = mutableMapOf<Char, Map<Char, List<Char>>>()
+            val paths = mutableMapOf<Char, Map<Char, List<List<Char>>>>()
             val pathfinding = Pathfinding<Pair<Char,Char>>()
             directionalMoves.keys.forEach { start ->
-                val map = mutableMapOf<Char,List<Char>>()
+                val map = mutableMapOf<Char,List<List<Char>>>()
                 directionalMoves.keys.minus(start).forEach { end ->
-                    val path = pathfinding.dijkstraShortestPath(
+                    val path = pathfinding.findAllPaths(
                         Pair(start,' '),
                         { current -> directionalMoves[current.first]!! },
                         { _, _ -> true },
-                        { current, neighbor ->
-                            when (neighbor.second) {
-                                '<' -> if (current.second == neighbor.second) 1 else 5
-                                'v' -> if (current.second == neighbor.second) 1 else 50
-                                '^' -> if (current.second == neighbor.second) 1 else 75
-                                '>' -> if (current.second == neighbor.second) 1 else 100
-                                else -> throw IllegalStateException("unrecognized direction: neighbor.second")
-                            }
-                        },
                         { current -> current.first == end }
                     )
-                    map[end] = path.first.drop(1).map { it.second }
+                    map[end] = path.map { it.map { it.second } + 'A' }
                 }
                 paths[start] = map
             }
@@ -103,7 +95,7 @@ class Day21 : Day(2024, 21) {
 
     class NumericKeypadEntryRobot: KeypadEntryRobot() {
 
-        override fun initializePaths(): Map<Char, Map<Char, List<Char>>> {
+        override fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>> {
             val numericMoves = mapOf(
                 'A' to listOf(
                     '0' to '<',
@@ -158,27 +150,18 @@ class Day21 : Day(2024, 21) {
                     '8' to '<'
                 ),
             )
-            val paths = mutableMapOf<Char, Map<Char, List<Char>>>()
-            val pathfinding = Pathfinding<Pair<Char,Char>>()
+            val paths = mutableMapOf<Char, Map<Char, List<List<Char>>>>()
+            val pathfinding = Pathfinding<Char>()
             numericMoves.keys.forEach { start ->
-                val map = mutableMapOf<Char,List<Char>>()
+                val map = mutableMapOf<Char,List<List<Char>>>()
                 numericMoves.keys.minus(start).forEach { end ->
-                    val path = pathfinding.dijkstraShortestPath(
-                        Pair(start,' '),
-                        { current -> numericMoves[current.first]!! },
+                    val path = pathfinding.findAllPaths(
+                        start,
+                        { current -> numericMoves[current]!!.map { it.second } },
                         { _, _ -> true },
-                        { current, neighbor ->
-                            when (neighbor.second) {
-                                '<' -> if (current.second == neighbor.second) 1 else 5
-                                'v' -> if (current.second == neighbor.second) 1 else 50
-                                '^' -> if (current.second == neighbor.second) 1 else 75
-                                '>' -> if (current.second == neighbor.second) 1 else 100
-                                else -> throw IllegalStateException("unrecognized direction: neighbor.second")
-                            }
-                        },
                         { current -> current.first == end }
                     )
-                    map[end] = path.first.drop(1).map { it.second }
+                    map[end] = path.map { it.map { it.second } + 'A' }
                 }
                 paths[start] = map
             }
@@ -186,25 +169,53 @@ class Day21 : Day(2024, 21) {
         }
     }
 
+    fun findAllPaths(
+        start: Pair<Char,Char>,
+        neighborIterator: (Pair<Char,Char>) -> List<Pair<Char,Char>>,
+        terminationCondition: (Pair<Char,Char>) -> Boolean
+    ): List<List<Char>> {
+        val completedPaths = mutableListOf<List<List<Char>>>()
+        val potentialPath = ArrayDeque<Pair<Pair<Char,Char>, List<Pair<Char,Char>>>>()
+        potentialPath.addFirst(Pair(start, listOf()))
+
+        while (potentialPath.isNotEmpty()) {
+            val current = potentialPath.removeFirst()
+            if (terminationCondition(current.first)) {
+                completedPaths.add(current.second.map { it })
+            } else {
+                neighborIterator(current.first)
+                    .filter { !current.second.any { it.first == current.first.first } }.forEach {
+                        potentialPath.addFirst(it to current.second.plus(current.first))
+                    }
+            }
+        }
+
+        return completedPaths
+    }
+
+
     fun calculatePartOne(input: List<String>): Int {
         val numericKeypadEntryRobot = NumericKeypadEntryRobot()
         val directionalKeypadRobot1 = DirectionalKeypadEntryRobot()
         val directionalKeypadRobot2 = DirectionalKeypadEntryRobot()
 
         return input.sumOf { line ->
-            val numericRobotMoves = line.map { keypadEntry ->
-                numericKeypadEntryRobot.moveArmTo(keypadEntry)
-            }.flatten()
-            val r1Moves = numericRobotMoves.map { r1Entry ->
-                directionalKeypadRobot1.moveArmTo(r1Entry)
-            }.flatten()
-            val r2Moves = r1Moves.map { r2Entry ->
-                directionalKeypadRobot2.moveArmTo(r2Entry)
-            }.flatten()
+            val paths = mutableListOf<List<List<Char>>>()
+            paths.addAll(line.flatMap { keypadEntry ->
+                val numericPaths = numericKeypadEntryRobot.pathsTo(keypadEntry)
+                numericPaths.flatMap { numericPath ->
+                    numericPath.flatMap { numericMove ->
+                        val r1Paths = directionalKeypadRobot1.pathsTo(numericMove)
+                        r1Paths.flatMap { r1Path ->
+                            r1Path.map { r1Move ->
+                                directionalKeypadRobot2.pathsTo(r1Move)
+                            }
+                        }
+                    }
+                }
+            })
 
-            println("$line -> ${r2Moves.joinToString("")}")
-
-            r2Moves.size * line.dropLast(1).trimStart('0').toInt()
+            paths.minOf { it.size } * line.dropLast(1).trimStart('0').toInt()
         }
     }
 
