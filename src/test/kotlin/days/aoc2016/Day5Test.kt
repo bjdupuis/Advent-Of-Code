@@ -15,6 +15,6 @@ class Day5Test {
 
     @Test
     fun testPartTwo() {
-        MatcherAssert.assertThat(day.calculatePartTwo(input), `is`(0))
+        MatcherAssert.assertThat(day.calculatePartTwo(input), `is`("05ace8e3"))
     }
 }

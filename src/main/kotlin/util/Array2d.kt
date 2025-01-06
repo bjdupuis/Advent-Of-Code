@@ -106,8 +106,8 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
 
     }
 
-    val rowIndices: IntRange = (0 until width)
-    val columnIndices: IntRange = (0 until height)
+    val rowIndices: IntRange = (0 until height)
+    val columnIndices: IntRange = (0 until width)
 
     val maxColumnIndex = width - 1
     val maxRowIndex = height - 1
@@ -131,7 +131,7 @@ class CharArray2d(val width: Int, val height: Int, private val default: Char): C
     }
 
     fun print() {
-        for (y in columnIndices) {
+        for (y in rowIndices) {
             val row = getRow(y)
             for (x in row.indices) {
                 print(row.get(x))
