@@ -16,8 +16,8 @@ class Day4 : Day(2024, 4) {
     fun calculatePartOne(input: List<String>): Int {
         val array = CharArray2d(input)
         var sum = 0
-        for (y in array.columnIndices) {
-            for (x in array.rowIndices) {
+        for (y in array.rowIndices) {
+            for (x in array.columnIndices) {
                 sum += countXmasFrom(array, Point2d(x, y))
             }
         }
