@@ -3,6 +3,7 @@ package days.aoc2024
 import days.Day
 import util.Pathfinding
 import util.Pathfinding.NeighborFilter
+import util.Point2d
 
 class Day21 : Day(2024, 21) {
     override fun partOne(): Any {
@@ -30,196 +31,77 @@ class Day21 : Day(2024, 21) {
 | < | v | > |
 +---+---+---+
      */
+    private val numericKeypad = mapOf(
+        Point2d(0,0) to '7', Point2d(1, 0) to '8', Point2d(2, 0) to '9',
+        Point2d(0,1) to '4', Point2d(1, 1) to '5', Point2d(2, 1) to '6',
+        Point2d(0,2) to '1', Point2d(1, 2) to '2', Point2d(2, 2) to '3',
+                                   Point2d(1, 3) to '0', Point2d(2, 3) to 'A',
 
-    abstract class KeypadEntryRobot {
-        private var currentLocation = 'A'
-        private val pathsToKey: Map<Char, Map<Char, List<List<Char>>>>
+    )
 
-        fun pathsTo(destination: Char): List<List<Char>> {
-            val moves = (pathsToKey[currentLocation]!![destination] ?: emptyList())
-            currentLocation = destination
-            return moves
-        }
+    private val directionalKeypad = mapOf(
+                                   Point2d(1, 0) to '^', Point2d(2, 0) to 'A',
+        Point2d(0,1) to '<', Point2d(1, 1) to 'v', Point2d(2, 1) to '>',
+    )
 
-        init {
-            pathsToKey = initializePaths()
-        }
+    private val numericPaths = shortestPathsFor(numericKeypad)
+    private val directionalPaths = shortestPathsFor(directionalKeypad)
 
-        abstract fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>>
-    }
+    // find the shortest paths from each key to every other key
+    private fun shortestPathsFor(keypad: Map<Point2d, Char>): Map<Char,Map<Char,List<String>>> {
+        val map = mutableMapOf<Char,Map<Char,MutableList<String>>>()
+        for (pad in keypad.keys) {
+            val paths = mutableMapOf<Char,MutableList<String>>()
+            paths[keypad[pad]!!] = mutableListOf("")
+            val frontier = mutableListOf(pad to "")
+            val visited = mutableSetOf<Point2d>()
 
-    class DirectionalKeypadEntryRobot : KeypadEntryRobot() {
+            while (frontier.isNotEmpty()) {
+                val (current, path) = frontier.removeFirst()
+                visited += current
 
-        override fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>> {
-            val directionalMoves = mapOf(
-                'A' to listOf(
-                    '^' to '<',
-                    '>' to 'v'
-                ),
-                '^' to listOf(
-                    'A' to '>',
-                    'v' to 'v'
-                ),
-                '<' to listOf(
-                    'v' to '>'
-                ),
-                'v' to listOf(
-                    '<' to '<',
-                    '^' to '^',
-                    '>' to '>'
-                ),
-                '>' to listOf(
-                    'A' to '^',
-                    'v' to '<'
-                )
-            )
-            val paths = mutableMapOf<Char, Map<Char, List<List<Char>>>>()
-            val pathfinding = Pathfinding<Pair<Char,Char>>()
-            directionalMoves.keys.forEach { start ->
-                val map = mutableMapOf<Char,List<List<Char>>>()
-                directionalMoves.keys.minus(start).forEach { end ->
-                    val path = pathfinding.findAllPaths(
-                        Pair(start,' '),
-                        { current -> directionalMoves[current.first]!! },
-                        { _, _ -> true },
-                        { current -> current.first == end }
-                    )
-                    map[end] = path.map { it.map { it.second } + 'A' }
+                current.neighbors().filter { keypad.keys.contains(it) && !visited.contains(it) }.forEach { neighbor ->
+                    val pathTo = path + when(current.directionTo(neighbor)) {
+                        Point2d.Direction.East -> '>'
+                        Point2d.Direction.West -> '<'
+                        Point2d.Direction.North -> '^'
+                        Point2d.Direction.South -> 'v'
+                        else -> throw IllegalStateException("impossible direction")
+                    }
+                    frontier.add(neighbor to pathTo)
+                    paths.getOrPut(keypad.getValue(neighbor)) { mutableListOf() } += pathTo
                 }
-                paths[start] = map
             }
-            return paths
+
+            map[keypad[pad]!!] = paths
         }
 
+        return map
     }
 
-    class NumericKeypadEntryRobot: KeypadEntryRobot() {
-
-        override fun initializePaths(): Map<Char, Map<Char, List<List<Char>>>> {
-            val numericMoves = mapOf(
-                'A' to listOf(
-                    '0' to '<',
-                    '3' to '^'
-                ),
-                '0' to listOf(
-                    'A' to '>',
-                    '2' to '^'
-                ),
-                '1' to listOf(
-                    '2' to '>',
-                    '4' to '^'
-                ),
-                '2' to listOf(
-                    '0' to 'v',
-                    '1' to '<',
-                    '5' to '^',
-                    '3' to '>'
-                ),
-                '3' to listOf(
-                    'A' to 'v',
-                    '2' to '<',
-                    '6' to '^'
-                ),
-                '4' to listOf(
-                    '1' to 'v',
-                    '5' to '>',
-                    '7' to '^'
-                ),
-                '5' to listOf(
-                    '2' to 'v',
-                    '4' to '<',
-                    '6' to '>',
-                    '8' to '^'
-                ),
-                '6' to listOf(
-                    '3' to 'v',
-                    '5' to '<',
-                    '9' to '^'
-                ),
-                '7' to listOf(
-                    '4' to 'v',
-                    '8' to '>'
-                ),
-                '8' to listOf(
-                    '5' to 'v',
-                    '7' to '<',
-                    '9' to '>'
-                ),
-                '9' to listOf(
-                    '6' to 'v',
-                    '8' to '<'
-                ),
-            )
-            val paths = mutableMapOf<Char, Map<Char, List<List<Char>>>>()
-            val pathfinding = Pathfinding<Char>()
-            numericMoves.keys.forEach { start ->
-                val map = mutableMapOf<Char,List<List<Char>>>()
-                numericMoves.keys.minus(start).forEach { end ->
-                    val path = pathfinding.findAllPaths(
-                        start,
-                        { current -> numericMoves[current]!!.map { it.second } },
-                        { _, _ -> true },
-                        { current -> current.first == end }
-                    )
-                    map[end] = path.map { it.map { it.second } + 'A' }
-                }
-                paths[start] = map
-            }
-            return paths
-        }
-    }
-
-    fun findAllPaths(
-        start: Pair<Char,Char>,
-        neighborIterator: (Pair<Char,Char>) -> List<Pair<Char,Char>>,
-        terminationCondition: (Pair<Char,Char>) -> Boolean
-    ): List<List<Char>> {
-        val completedPaths = mutableListOf<List<List<Char>>>()
-        val potentialPath = ArrayDeque<Pair<Pair<Char,Char>, List<Pair<Char,Char>>>>()
-        potentialPath.addFirst(Pair(start, listOf()))
-
-        while (potentialPath.isNotEmpty()) {
-            val current = potentialPath.removeFirst()
-            if (terminationCondition(current.first)) {
-                completedPaths.add(current.second.map { it })
+    private fun calculatePathLength(path: String, depth: Int, paths: Map<Char, Map<Char,List<String>>> = numericPaths, cache: MutableMap<Pair<String,Int>,Long>): Long {
+        return cache.getOrPut(Pair(path, depth)) {
+            if (depth == 0) {
+                path.length.toLong()
             } else {
-                neighborIterator(current.first)
-                    .filter { !current.second.any { it.first == current.first.first } }.forEach {
-                        potentialPath.addFirst(it to current.second.plus(current.first))
-                    }
-            }
-        }
-
-        return completedPaths
-    }
-
-
-    fun calculatePartOne(input: List<String>): Int {
-        val numericKeypadEntryRobot = NumericKeypadEntryRobot()
-        val directionalKeypadRobot1 = DirectionalKeypadEntryRobot()
-        val directionalKeypadRobot2 = DirectionalKeypadEntryRobot()
-
-        return input.sumOf { line ->
-            val paths = mutableListOf<List<List<Char>>>()
-            paths.addAll(line.flatMap { keypadEntry ->
-                val numericPaths = numericKeypadEntryRobot.pathsTo(keypadEntry)
-                numericPaths.flatMap { numericPath ->
-                    numericPath.flatMap { numericMove ->
-                        val r1Paths = directionalKeypadRobot1.pathsTo(numericMove)
-                        r1Paths.flatMap { r1Path ->
-                            r1Path.map { r1Move ->
-                                directionalKeypadRobot2.pathsTo(r1Move)
-                            }
-                        }
+                "A$path".zipWithNext().sumOf { (first, second) ->
+                    paths[first]!![second]!!.minOf { newPath ->
+                        calculatePathLength("${newPath}A", depth - 1, directionalPaths, cache)
                     }
                 }
-            })
-
-            paths.minOf { it.size } * line.dropLast(1).trimStart('0').toInt()
+            }
         }
     }
 
-    fun calculatePartTwo(input: List<String>): Int {
-        return 0
+    fun calculatePartOne(input: List<String>): Long {
+        return input.sumOf { line ->
+            calculatePathLength(line, 3, cache = mutableMapOf()) * line.dropLast(1).toLong()
+        }
+    }
+
+    fun calculatePartTwo(input: List<String>): Long {
+        return input.sumOf { line ->
+            calculatePathLength(line, 26, cache = mutableMapOf()) * line.dropLast(1).toLong()
+        }
     }
 }
