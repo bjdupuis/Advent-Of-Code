@@ -29,8 +29,7 @@ class Day3 : Day(2025, 3) {
             var startingPoint = 0
             for (digits in 11 downTo 0) {
                 val max = joltages.drop(startingPoint).dropLast(digits).max()
-                val power = 10L.power(digits)
-                total += max * power
+                total += max * 10L.power(digits)
                 startingPoint = joltages.drop(startingPoint).indexOfFirst { it == max } + 1 + startingPoint
             }
             total
