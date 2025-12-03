@@ -98,3 +98,11 @@ fun <E> Iterable<E>.permutations(minimum: Int? = null, maximum: Int? = minimum):
             }
         }
     }
+
+fun Long.power(exponent: Int): Long {
+    var result = 1L
+    for (i in 1..exponent) {
+        result *= this
+    }
+    return result
+}
