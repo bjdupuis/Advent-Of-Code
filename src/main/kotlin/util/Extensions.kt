@@ -106,3 +106,18 @@ fun Long.power(exponent: Int): Long {
     }
     return result
 }
+
+fun LongRange.intersects(range: LongRange): Boolean {
+    if (this.first() < range.first()) {
+        if (this.last() >= range.first()) {
+            return true
+        }
+    } else if (range.first() < this.first()) {
+        if (range.last() >= this.first()) {
+            return true
+        }
+    } else {
+        return true
+    }
+    return false
+}
