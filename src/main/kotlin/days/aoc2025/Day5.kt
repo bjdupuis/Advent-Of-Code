@@ -1,9 +1,7 @@
 package days.aoc2025
 
 import days.Day
-import util.containsAll
 import util.intersects
-import java.math.BigInteger
 
 class Day5 : Day(2025, 5) {
     override fun partOne(): Any {
