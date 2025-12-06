@@ -33,7 +33,7 @@ class Array2d<T>(val width: Int, val height: Int, private val default: T?) {
 
 class CharArray2d(val width: Int, val height: Int, private val default: Char): Cloneable {
 
-    constructor(stringList: List<String>) : this(stringList.first().length, stringList.size, ' ') {
+    constructor(stringList: List<String>) : this(stringList.maxBy { it.length }.length, stringList.size, ' ') {
         stringList.forEachIndexed { y, s ->
             s.forEachIndexed { x, c ->
                 storage[y][x] = c

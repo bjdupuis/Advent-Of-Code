@@ -121,3 +121,18 @@ fun LongRange.intersects(range: LongRange): Boolean {
     }
     return false
 }
+
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    if (isEmpty() || this[0].isEmpty()) {
+        return emptyList()
+    }
+
+    val numRows = size
+    val numCols = this[0].size
+
+    return List(numCols) { colIndex ->
+        List(numRows) { rowIndex ->
+            this[rowIndex][colIndex]
+        }
+    }
+}
